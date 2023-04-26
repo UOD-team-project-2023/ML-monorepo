@@ -1,0 +1,76 @@
+generator client {
+  provider  = "prisma-client-py"
+  interface = "asyncio"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Clients {
+  id            Int             @id @default(autoincrement())
+  clientID      String          @unique
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  StaticMetric  StaticMetric[]
+  DynamicMetric DynamicMetric[]
+}
+
+model StaticMetric {
+  id             Int      @id @default(autoincrement())
+  clientID       String
+  createdAt      DateTime @default(now())
+  system         String
+  host_name      String
+  release        String
+  version        String
+  cpu_type       String
+  cpu_name       String
+  cpu_family     String
+  physical_cores Int
+  logical_cores  Int
+  max_frequency  Float
+  min_frequency  Float
+  total_ram      BigInt
+  gpus           Json
+
+  client Clients @relation(fields: [clientID], references: [clientID])
+}
+
+model DynamicMetric {
+  id                   Int      @id @default(autoincrement())
+  clientID             String
+  createdAt            DateTime @default(now())
+  boot_time            DateTime
+  current_frequency    Float
+  total_cpu_usage      Float
+  core_utilization     Json
+  total_ram_usage      Float
+  available_ram        BigInt
+  used_ram             BigInt
+  ram_percent          Float
+  total_swap           BigInt
+  free_swap            BigInt
+  used_swap            BigInt
+  swap_percent         Float
+  total_bytes_sent     BigInt
+  total_bytes_received BigInt
+  total_bytes_read     BigInt
+  total_bytes_written  BigInt
+  gpu_usage            Json
+  partitions           Json
+  adapter_information  Json
+  dns                  Json
+
+  client Clients @relation(fields: [clientID], references: [clientID])
+}
+
+model Users {
+  id        Int      @id @default(autoincrement())
+  email     String?
+  password  String
+  username  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

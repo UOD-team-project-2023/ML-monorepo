@@ -1,0 +1,8 @@
+{
+  "name": "ml-daemon",
+  "version": "1.0.0",
+  "scripts": {
+    "py:install": "python -m venv venv && venv\\Scripts\\activate && python -m pip install -r requirements.txt",
+    "dev": "venv\\Scripts\\activate && python -m main"
+  }
+}
