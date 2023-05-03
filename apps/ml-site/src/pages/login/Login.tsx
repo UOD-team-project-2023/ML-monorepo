@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
 import { At, Lock } from "tabler-icons-react";
+import { Loading } from "../../components/loading/Loading";
 
 function Login() {
   const [value, setValue] = useState("");
@@ -36,7 +37,11 @@ function Login() {
   });
 
   if (!status) {
-    return (window.location.href = "/register");
+    return (
+      <>
+        <Loading />;{(window.location.href = "/register")}
+      </>
+    );
   }
 
   return (
