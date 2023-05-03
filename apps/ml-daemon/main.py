@@ -7,10 +7,12 @@ from helpers.try_int import try_int
 from helpers.write_to_dotenv import write_to_dotenv
 from helpers.generate_client_id import generate_client_id
 from helpers.check_desktop_enviroment import check_desktop_enviroment
+from helpers.persistantDataManager import write_to_disk, read_from_disk
 import schedule
 import logging
 import logging.config
 import yaml
+import os
 from PIL import Image
 if check_desktop_enviroment():
     import pystray
@@ -21,6 +23,12 @@ class Probe():
         self.schedule_thread = None
         self.schedule_thread_running = True
         self.tray = None
+        self.persistant_data = {
+            "client_id":None,
+
+        }
+
+        self._verify_log_file()
 
         with open('logging.yaml', 'r') as f:
             config = yaml.safe_load(f.read())
@@ -28,8 +36,10 @@ class Probe():
 
         self.logger = logging.getLogger(__name__)
 
+        
         dotenv_ingest_success = self._ingest_dotenv()
-        self.api = ApiInterface(self.url, self.client_id, self.psk)
+        self.setup_client_id()
+        self.api = ApiInterface(self.url, self.persistant_data['client_id'], self.psk)
         server_registration_success = self.register_with_server()
         if not dotenv_ingest_success or not server_registration_success:
             return
@@ -40,6 +50,15 @@ class Probe():
 
         if check_desktop_enviroment():
             self._setup_tray_icon()
+
+    def _verify_log_file(self):
+        # Check if the logs directory exists, if not, create it
+        if not os.path.exists('logs'):
+            os.makedirs('logs')
+
+        # Check if the log.txt file exists, if not, create it
+        if not os.path.exists('logs/log.txt'):
+            open('logs/log.txt', 'w').close()
 
     def _setup_tray_icon(self):
         self.logger.info('Desktop enviroment detected, starting tray icon.')
@@ -98,20 +117,26 @@ class Probe():
             self.psk = config["PSK"]
             self.use_hostname_as_client_id = config["USE_HOSTNAME_AS_CLIENT_ID"]
 
-            if "CLIENT_ID" in config and config["CLIENT_ID"] != "":
-                self.logger.debug('Client ID found.')
-                self.client_id = config["CLIENT_ID"]
-            else:
-                self.logger.debug('Client ID missing. Regenerating.')
-                self.client_id = generate_client_id(
-                    self.use_hostname_as_client_id)
-                write_to_dotenv("CLIENT_ID", self.client_id)
+
 
             return True
         except:
             self.logger.critical('Error reading .env')
             print("Error reading .env")
             return False
+
+    def setup_client_id(self):
+
+        data = read_from_disk("data.dat")
+
+        if data != None:
+            self.logger.debug('Client ID found.')
+            self.persistant_data['client_id'] = data["client_id"]
+        else:
+            self.logger.debug('Client ID missing. Regenerating.')
+            client_id = generate_client_id(self.use_hostname_as_client_id)
+            self.persistant_data['client_id'] = client_id
+            write_to_disk('data.dat', self.persistant_data)
 
     def shutdown(self):
         self.logger.info('Shutting down.')
@@ -160,7 +185,7 @@ class Probe():
     def register_with_server(self):
 
         returned_http_status, returned_json = self.api.call_api(
-            "/create_client", self.client_id)
+            "/create_client", self.persistant_data['client_id'])
 
         if returned_http_status == 200:
             self.logger.debug('Registration successful.')
@@ -176,4 +201,4 @@ if __name__ == "__main__":
     probe = Probe()
 
     print(f"API URL: {probe.url}")
-    print(f"Cient ID: {probe.client_id}")
+    print(f"Cient ID: {probe.persistant_data['client_id']}")
