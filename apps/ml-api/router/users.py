@@ -2,6 +2,7 @@ import uuid
 from fastapi import APIRouter, HTTPException
 from db import prisma
 from pydantic import BaseModel
+from helpers.password import has_numbers, has_lowercase, has_uppercase, has_specialchar
 
 router = APIRouter()
 
@@ -24,27 +25,8 @@ class Request(BaseModel):
     access_level: str
 
 
-def has_numbers(input_string):
-    return any(char.isdigit() for char in input_string)
-
-
-def has_lowercase(input_string):
-    return any(char.islower() for char in input_string)
-
-
-def has_uppercase(input_string):
-    return any(char.isupper() for char in input_string)
-
-
-def has_specialchar(input_string):
-    specialcharacters = "!@#$%^&*()-+?=,<>/"
-    return any(char in specialcharacters for char in input_string)
-
-
 @router.post("/create_user", tags=["users"])
 async def create_user(request: Request):
-    # created_user = await prisma.users.create(data={"email": "email@gmail.com", "password": "password123", "username": username})
-    # return created_user
     if len(request.username) < 1:
         raise HTTPException(
             status_code=400, detail="Username Length Doesn't Meet Requirements (>1)")
