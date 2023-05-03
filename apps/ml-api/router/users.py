@@ -29,7 +29,7 @@ class Request(BaseModel):
 async def create_user(request: Request):
     if len(request.username) < 1:
         raise HTTPException(
-            status_code=400, detail="Username Length Doesn't Meet Requirements (>1)")
+            status_code=400, detail="Username Length must be at least 1 character")
     if len(request.password) < 6:
         raise HTTPException(
             status_code=400, detail="Password length has to be >= 6")
@@ -61,5 +61,5 @@ async def create_user(request: Request):
 async def check_fts():
     check_admin = await prisma.users.find_first(where={"permission": "ADMIN"})
     if not check_admin:
-        raise HTTPException(status_code=404, detail="Not Admin")
+        raise HTTPException(status_code=404, detail="No Admin Found")
     return {"fts": "true"}

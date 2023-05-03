@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { At, X, Check, Lock, User } from "tabler-icons-react";
+import { X, Check, Lock, User } from "tabler-icons-react";
 import {
   Title,
-  Image,
   TextInput,
   PasswordInput,
   Progress,
@@ -12,11 +11,12 @@ import {
   Center,
   Button,
   useMantineTheme,
-  Group,
   Flex,
+  Image,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import monitorLizardLogo from "../../assets/monitor_lizard.png";
+import { notifications } from "@mantine/notifications";
+import monitorLizardLogo from "../../../public/monitor_lizard.png";
 
 function PasswordRequirement({ meets, label }: { meets: boolean; label: string }) {
   return (
@@ -65,10 +65,18 @@ async function handleFormSubmit(values: any) {
       "Content-Type": "application/json",
     },
   });
-
   const data = await response.json();
-  const token = sessionStorage.setItem("token", data.token);
-  window.location.href = "/dashboard";
+  if (response.status === 200) {
+    sessionStorage.setItem("token", data.token);
+    window.location.href = "/dashboard";
+  } else {
+    console.log(data);
+    notifications.show({
+      title: "Error",
+      message: data.detail,
+      color: "red",
+    });
+  }
 }
 
 function Register() {
@@ -100,9 +108,7 @@ function Register() {
       <Box w="75%">
         <Flex align={"center"}>
           <Image radius={15} src={monitorLizardLogo} width={64} height={64} />
-          <Title style={{}} size="4">
-            Register your account
-          </Title>
+          <Title size="20">Register your account</Title>
         </Flex>
         <form
           onSubmit={form.onSubmit((values) => {
@@ -117,7 +123,7 @@ function Register() {
             {...form.getInputProps("username")}
           />
 
-          <Popover opened={popoverOpened} position="bottom" width="target" transition="pop">
+          <Popover opened={popoverOpened} position="bottom" width="target">
             <Popover.Target>
               <div
                 onFocusCapture={() => setPopoverOpened(true)}

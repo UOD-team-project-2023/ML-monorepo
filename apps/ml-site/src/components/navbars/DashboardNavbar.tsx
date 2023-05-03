@@ -4,8 +4,6 @@ import { Dashboard, Icon } from "tabler-icons-react";
 import { UserProfileButton } from "../profile/UserProfileButton";
 import { useStyles } from "./dashboardNavbar.styles";
 
-import monitorLizardLogo from "../../assets/monitor_lizard.png";
-
 export interface NavBarLinks {
   link: string;
   label: string;
@@ -57,7 +55,7 @@ export function DashboardNavbar({ opened, selected }: Props) {
       <Navbar p="md" hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 250, md: 250, lg: 250 }}>
         <Navbar.Section grow>
           <Group spacing={10}>
-            <Image radius={50} src={monitorLizardLogo} width={32} height={32} />
+            {/* <Image radius={50} src={monitorLizardLogo} width={32} height={32} /> */}
             <h2>Monitor Lizard</h2>
           </Group>
           <div style={{ paddingTop: "10px", paddingBottom: "10px" }}>

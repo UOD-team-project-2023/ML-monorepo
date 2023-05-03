@@ -5,6 +5,7 @@ import { CoreUtilization, GpuUsage, Metric, Partition } from "../../types/metric
 import { calculateStatsRingColor } from "../../utils/calculateStatsRingColor";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { Loading } from "../../components/loading/Loading";
+import { Navigate } from "react-router-dom";
 
 function Dashboard() {
   const [metrics, setMetrics] = useState<Metric[]>([]);
@@ -12,7 +13,7 @@ function Dashboard() {
   const newestMetric = metrics[metrics.length - 1];
 
   const token = localStorage.getItem("token");
-  if (!token) return (window.location.href = "/login");
+  if (!token) return <Navigate to={"/login"} />;
 
   useEffect(() => {
     setTimeout(() => {
