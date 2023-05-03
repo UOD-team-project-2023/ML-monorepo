@@ -17,6 +17,7 @@ import {
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import monitorLizardLogo from "../../../public/monitor_lizard.png";
+import { Navigate } from "react-router-dom";
 
 function PasswordRequirement({ meets, label }: { meets: boolean; label: string }) {
   return (
@@ -35,7 +36,7 @@ const requirements = [
   { re: /[0-9]/, label: "Includes number" },
   { re: /[a-z]/, label: "Includes lowercase letter" },
   { re: /[A-Z]/, label: "Includes uppercase letter" },
-  { re: /[$&+,:;=?@#|'<>.^*()%!-]/, label: "Includes special symbol" },
+  { re: /["'$&+,:;=?@#|'<>.^*()%!-]/, label: "Includes special symbol" },
 ];
 
 function getStrength(password: string) {
@@ -68,6 +69,11 @@ async function handleFormSubmit(values: any) {
   const data = await response.json();
   if (response.status === 200) {
     sessionStorage.setItem("token", data.token);
+    notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
+    });
     window.location.href = "/dashboard";
   } else {
     console.log(data);

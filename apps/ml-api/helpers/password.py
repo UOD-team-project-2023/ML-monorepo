@@ -11,5 +11,5 @@ def has_uppercase(input_string):
 
 
 def has_specialchar(input_string):
-    specialcharacters = "!@#$%^&*()-+?=,<>/"
+    specialcharacters = "!@#$%^&*()-+?=,<>/:'\""
     return any(char in specialcharacters for char in input_string)

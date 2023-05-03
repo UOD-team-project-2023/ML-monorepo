@@ -16,8 +16,9 @@ const CustomAppShell = ({ children, selected }: Props) => {
       navbarOffsetBreakpoint="sm"
       asideOffsetBreakpoint="sm"
       sx={(theme) => ({
-        [`@media (min-width: ${theme.breakpoints.sm}px)`]: {
-          "--mantine-header-height": "0px",
+        [`@media (min-width: ${theme.breakpoints.sm})`]: {
+          "--mantine-header-height": 0,
+          marginTop: "10px",
         },
       })}
       navbar={<DashboardNavbar selected={selected} opened={opened} />}

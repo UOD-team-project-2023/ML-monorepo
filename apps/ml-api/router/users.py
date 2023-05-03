@@ -53,7 +53,7 @@ async def create_user(request: Request):
         "token": str(uuid.uuid4())
     }
     )
-    return ({"message": "Registration Confirmed",
+    return ({"detail": "Registration Confirmed",
              "token": user.token})
 
 
@@ -63,3 +63,11 @@ async def check_fts():
     if not check_admin:
         raise HTTPException(status_code=404, detail="No Admin Found")
     return {"fts": "true"}
+
+
+@router.get("/user_profile", tags=["users"])
+async def user_profile(token: str):
+    user = await prisma.users.find_first(where={"token": token})
+    if not user:
+        raise HTTPException(status_code=400, detail="No User found")
+    return {"user": user}
