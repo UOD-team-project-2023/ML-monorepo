@@ -54,7 +54,6 @@ async function handleFormSubmit(values: any) {
 
   const parsedValues = {
     username: values.username,
-    email: values.email,
     password: values.password,
     access_level: "ADMIN",
   };
@@ -68,6 +67,8 @@ async function handleFormSubmit(values: any) {
   });
 
   const data = await response.json();
+  const token = sessionStorage.setItem("token", data.token);
+  window.location.href = "/dashboard";
 }
 
 function Register() {
@@ -87,7 +88,6 @@ function Register() {
   const form = useForm({
     initialValues: {
       username: "",
-      email: "",
       password: passvalue,
     },
   });
@@ -116,13 +116,7 @@ function Register() {
             icon={<User size={14} />}
             {...form.getInputProps("username")}
           />
-          <TextInput
-            style={{ padding: 5 }}
-            type="email"
-            placeholder="Email"
-            icon={<At size={14} />}
-            {...form.getInputProps("email")}
-          />
+
           <Popover opened={popoverOpened} position="bottom" width="target" transition="pop">
             <Popover.Target>
               <div
