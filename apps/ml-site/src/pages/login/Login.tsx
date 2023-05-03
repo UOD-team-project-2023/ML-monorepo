@@ -8,9 +8,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { useForm } from "@mantine/form";
 import { At, Lock } from "tabler-icons-react";
-import { Loading } from "../../components/loading/Loading";
 
 function Login() {
   const [value, setValue] = useState("");
@@ -27,12 +25,6 @@ function Login() {
       }
     }
     fetchUsers();
-  });
-  const form = useForm({
-    initialValues: {
-      username: "",
-      password: "",
-    },
   });
 
   return (
@@ -56,9 +48,6 @@ function Login() {
             icon={<Lock size={14} />}
             onChange={(event) => setValue(event.currentTarget.value)}
           />
-          <Button component={"a"} href={"/dashboard"}>
-            Login
-          </Button>
         </form>
         <Button
           component="a"
