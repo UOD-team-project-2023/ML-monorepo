@@ -1,9 +1,12 @@
+from http.client import HTTPException
 import json
 from fastapi import APIRouter, Request
 from pydantic import BaseModel
 from typing import List
 from fastapi.encoders import jsonable_encoder
 from db import prisma
+import os
+
 
 router = APIRouter()
 
@@ -31,6 +34,10 @@ class CustomRequest(BaseModel):
 
 @router.post("/static_data", tags=["static_data"])
 async def static_data(request: Request, custom_request: CustomRequest):
+
+    if request.headers.get("PSK") != os.environ.get("PSK"):
+        raise HTTPException(status_code=401, detail=f"unauthorized")
+    
     json_obj = jsonable_encoder(custom_request)
     submitted_metric = await prisma.staticmetric.create(data={
         "clientID": request.headers["client-id"],
