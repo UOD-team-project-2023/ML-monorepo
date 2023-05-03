@@ -24,8 +24,7 @@ class Probe():
         self.schedule_thread_running = True
         self.tray = None
         self.persistant_data = {
-            "client_id":None,
-
+            "client_id": None,
         }
 
         self._verify_log_file()
@@ -36,10 +35,10 @@ class Probe():
 
         self.logger = logging.getLogger(__name__)
 
-        
         dotenv_ingest_success = self._ingest_dotenv()
         self.setup_client_id()
-        self.api = ApiInterface(self.url, self.persistant_data['client_id'], self.psk)
+        self.api = ApiInterface(
+            self.url, self.persistant_data['client_id'], self.psk)
         server_registration_success = self.register_with_server()
         if not dotenv_ingest_success or not server_registration_success:
             return
@@ -116,8 +115,6 @@ class Probe():
             self.static_data_interval = try_int(config["STATIC_DATA_INTERVAL"])
             self.psk = config["PSK"]
             self.use_hostname_as_client_id = config["USE_HOSTNAME_AS_CLIENT_ID"]
-
-
 
             return True
         except:

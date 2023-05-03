@@ -1,16 +1,4 @@
-import {
-  Group,
-  Text,
-  Paper,
-  RingProgress,
-  SimpleGrid,
-  useMantineTheme,
-  Grid,
-  Anchor,
-  Loader,
-  Stack,
-  LoadingOverlay,
-} from "@mantine/core";
+import { Group, Text, Paper, RingProgress, SimpleGrid, useMantineTheme, Grid } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { LineGraph } from "../../components/graphs/LineGraph";
 import { CoreUtilization, GpuUsage, Metric, Partition } from "../../types/metric";
@@ -23,10 +11,13 @@ function Dashboard() {
   const [refetch, setRefetch] = useState(false);
   const newestMetric = metrics[metrics.length - 1];
 
+  const token = localStorage.getItem("token");
+  if (!token) return (window.location.href = "/login");
+
   useEffect(() => {
     setTimeout(() => {
       setRefetch(!refetch);
-    }, 30000); // refetch data every 30s
+    }, 30000);
   }, [refetch]);
 
   console.log(refetch);

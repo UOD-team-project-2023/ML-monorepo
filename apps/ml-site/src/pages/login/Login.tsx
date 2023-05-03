@@ -20,7 +20,7 @@ function Login() {
   useEffect(() => {
     async function fetchUsers() {
       const apiURL = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${apiURL}/get_activation_status`);
+      const response = await fetch(`${apiURL}/check_fts`);
 
       const data = await response.json();
       setStatus(data);
