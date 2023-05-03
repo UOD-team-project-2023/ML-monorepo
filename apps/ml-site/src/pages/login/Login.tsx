@@ -22,8 +22,9 @@ function Login() {
       const apiURL = import.meta.env.VITE_API_URL;
       const response = await fetch(`${apiURL}/check_fts`);
 
-      const data = await response.json();
-      setStatus(data);
+      if (response.status !== 200) {
+        window.location.href = "/register";
+      }
     }
     fetchUsers();
   });
@@ -33,14 +34,6 @@ function Login() {
       password: "",
     },
   });
-
-  if (!status) {
-    return (
-      <>
-        <Loading />;{(window.location.href = "/register")}
-      </>
-    );
-  }
 
   return (
     <Center maw={500} mx="auto" mt="15%">

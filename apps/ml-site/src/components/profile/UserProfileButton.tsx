@@ -4,11 +4,10 @@ import { useStyles } from "./userProfileButton.styles";
 
 interface UserProfileButtonProps {
   name: string;
-  email: string;
   image: string | null | undefined;
 }
 
-export function UserProfileButton({ name, image, email }: UserProfileButtonProps) {
+export function UserProfileButton({ name, image }: UserProfileButtonProps) {
   const { classes } = useStyles();
 
   return (
@@ -19,10 +18,6 @@ export function UserProfileButton({ name, image, email }: UserProfileButtonProps
         <div style={{ flex: 1 }}>
           <Text size="sm" weight={500}>
             {name}
-          </Text>
-
-          <Text color="dimmed" size="xs">
-            {email}
           </Text>
         </div>
 

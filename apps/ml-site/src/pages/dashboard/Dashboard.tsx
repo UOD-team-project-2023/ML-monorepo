@@ -12,8 +12,7 @@ function Dashboard() {
   const [refetch, setRefetch] = useState(false);
   const newestMetric = metrics[metrics.length - 1];
 
-  const token = localStorage.getItem("token");
-  if (!token) return <Navigate to={"/login"} />;
+  const token = sessionStorage.getItem("token");
 
   useEffect(() => {
     setTimeout(() => {
@@ -25,19 +24,21 @@ function Dashboard() {
 
   useEffect(() => {
     async function fetchData() {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/metrics?client_id=${import.meta.env.VITE_CLIENT_ID}`
-        );
-        if (!response.ok) {
-          throw new Error(`Failed to fetch metrics: ${response.statusText}`);
-        }
+      console.log("1");
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/metrics?client_id=${
+          import.meta.env.VITE_CLIENT_ID
+        }&token=${token}`
+      );
 
-        const data = await response.json();
-        setMetrics(data);
-      } catch (error) {
-        console.error(error);
+      console.log(response);
+      if (response.status !== 200) {
+        console.log("2");
+        window.location.href = "/register?error=unauthorized";
       }
+
+      const data = await response.json();
+      setMetrics(data);
     }
     fetchData();
   }, [refetch]);
