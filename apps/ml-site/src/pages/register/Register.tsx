@@ -17,7 +17,6 @@ import {
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import monitorLizardLogo from "../../../public/monitor_lizard.png";
-import { Navigate } from "react-router-dom";
 
 function PasswordRequirement({ meets, label }: { meets: boolean; label: string }) {
   return (

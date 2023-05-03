@@ -4,11 +4,14 @@ import {
   Box,
   Title,
   Button,
+  Image,
   PasswordInput,
   TextInput,
+  Flex,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { At, Lock } from "tabler-icons-react";
+import monitorLizardLogo from "../../../public/monitor_lizard.png";
 
 function Login() {
   const [value, setValue] = useState("");
@@ -30,9 +33,12 @@ function Login() {
   return (
     <Center maw={500} mx="auto" mt="15%">
       <Box w="75%">
-        <Title style={{ padding: 5 }} size="h4">
-          Login
-        </Title>
+        <Flex align={"center"}>
+          <Image radius={15} src={monitorLizardLogo} width={64} height={64} />
+          <Title style={{ padding: 5 }} size="h4">
+            Login
+          </Title>
+        </Flex>
         <form>
           <TextInput
             withAsterisk={true}
