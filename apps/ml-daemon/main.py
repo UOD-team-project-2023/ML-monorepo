@@ -11,6 +11,7 @@ import schedule
 import logging
 import logging.config
 import yaml
+import os
 from PIL import Image
 if check_desktop_enviroment():
     import pystray
@@ -21,6 +22,8 @@ class Probe():
         self.schedule_thread = None
         self.schedule_thread_running = True
         self.tray = None
+
+        self._verify_log_file()
 
         with open('logging.yaml', 'r') as f:
             config = yaml.safe_load(f.read())
@@ -40,6 +43,15 @@ class Probe():
 
         if check_desktop_enviroment():
             self._setup_tray_icon()
+
+    def _verify_log_file(self):
+        # Check if the logs directory exists, if not, create it
+        if not os.path.exists('logs'):
+            os.makedirs('logs')
+
+        # Check if the log.txt file exists, if not, create it
+        if not os.path.exists('logs/log.txt'):
+            open('logs/log.txt', 'w').close()
 
     def _setup_tray_icon(self):
         self.logger.info('Desktop enviroment detected, starting tray icon.')
