@@ -24,8 +24,6 @@ function Login() {
 
       const data = await response.json();
       setStatus(data);
-
-      console.log(data);
     }
     fetchUsers();
   });
