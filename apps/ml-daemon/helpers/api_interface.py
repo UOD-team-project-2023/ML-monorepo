@@ -1,12 +1,13 @@
 import json
 import httpx
+import os
 
 
 class ApiInterface:
     def __init__(self, api_url, client_id, psk):
         self.api_url = self._sanitize_url(api_url)
         self.headers = {
-            'Authorization': psk,
+            'PSK': psk,
             'Client-ID': client_id,
             'Content-Type': 'application/json',
         }
@@ -15,6 +16,7 @@ class ApiInterface:
         return url.strip().rstrip('/')
 
     def call_api(self, endpoint, data):
+
         try:
             response = httpx.post(self.api_url + endpoint, headers=self.headers, data=data)
 

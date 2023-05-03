@@ -106,7 +106,6 @@ class Probe():
     def _ingest_dotenv(self):
         try:
             config = dotenv_values(".env")
-
             #self.name = config["PROBE_NAME"]
             #self.timeout = config["PROBE_TIMEOUT"]
             self.url = config["SERVER_URL"]
@@ -181,8 +180,7 @@ class Probe():
 
     def register_with_server(self):
 
-        returned_http_status, returned_json = self.api.call_api(
-            "/create_client", self.persistant_data['client_id'])
+        returned_http_status, returned_json = self.api.call_api("/create_client", self.persistant_data['client_id'])
 
         if returned_http_status == 200:
             self.logger.debug('Registration successful.')
@@ -196,6 +194,3 @@ class Probe():
 
 if __name__ == "__main__":
     probe = Probe()
-
-    print(f"API URL: {probe.url}")
-    print(f"Cient ID: {probe.persistant_data['client_id']}")
