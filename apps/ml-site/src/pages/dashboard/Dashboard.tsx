@@ -5,7 +5,6 @@ import {
   RingProgress,
   SimpleGrid,
   useMantineTheme,
-  Box,
   Title,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
@@ -18,6 +17,7 @@ import { Loading } from "../../components/loading/Loading";
 function Dashboard() {
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [refetch, setRefetch] = useState(false);
+  const [fetchingMetrics, setFetchingMetrics] = useState(false);
   const newestMetric = metrics[metrics.length - 1];
 
   const token = sessionStorage.getItem("token");
@@ -30,6 +30,7 @@ function Dashboard() {
 
   useEffect(() => {
     async function fetchData() {
+      setFetchingMetrics(true);
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/metrics?client_id=${
           import.meta.env.VITE_CLIENT_ID
@@ -37,7 +38,6 @@ function Dashboard() {
       );
 
       if (response.status !== 200) {
-        console.log("2");
         window.location.href = "/register?error=unauthorized";
       }
 
@@ -45,26 +45,33 @@ function Dashboard() {
       setMetrics(data);
     }
     fetchData();
+    setFetchingMetrics(false);
   }, [refetch]);
 
-  if (!metrics.length) return <Loading />;
+  if (fetchingMetrics) return <Loading />;
+  if (!metrics.length)
+    return (
+      <CustomAppShell selected={1}>
+        <Loading />
+      </CustomAppShell>
+    );
 
   const totalCpuUsage =
     newestMetric.core_utilization.reduce((acc: any, curr: any) => {
       return acc + curr.utilization;
     }, 0) / newestMetric.core_utilization.length;
 
-  const totalDiskUsage = newestMetric.partitions.reduce((acc, cur: Partition) => {
+  const totalDiskUsage = newestMetric?.partitions.reduce((acc, cur: Partition) => {
     return acc + cur.used;
   }, 0);
 
-  const totalDiskFree = newestMetric.partitions.reduce((acc, cur: Partition) => {
+  const totalDiskFree = newestMetric?.partitions.reduce((acc, cur: Partition) => {
     return acc + cur.free;
   }, 0);
 
   const statsRingData = [
     {
-      label: "CPU usage", // TODO: total divided by how many there are (avg)
+      label: "CPU usage",
       stats: `${totalCpuUsage.toFixed(2)}%`,
       progress: totalCpuUsage,
       color: calculateStatsRingColor(totalCpuUsage),
@@ -135,8 +142,8 @@ function Dashboard() {
     return [
       {
         createdAt: metric.createdAt,
-        graphPlot: metric.free_swap,
-        label: "free swap",
+        graphPlot: `${(metric.free_swap / 1000000000).toFixed(2)}`,
+        label: "free swap (GB)",
       },
     ];
   });
@@ -144,8 +151,8 @@ function Dashboard() {
     return [
       {
         createdAt: metric.createdAt,
-        graphPlot: metric.total_swap,
-        label: "Total swap",
+        graphPlot: `${(metric.total_swap / 1000000000).toFixed(2)}`,
+        label: "Total swap (GB)",
       },
     ];
   });
@@ -153,8 +160,8 @@ function Dashboard() {
     return [
       {
         createdAt: metric.createdAt,
-        graphPlot: metric.used_swap,
-        label: "Used swap",
+        graphPlot: `${(metric.used_swap / 1000000000).toFixed(2)}`,
+        label: "Used swap (GB)",
       },
     ];
   });
@@ -163,8 +170,8 @@ function Dashboard() {
     return [
       {
         createdAt: metric.createdAt,
-        graphPlot: metric.total_bytes_sent,
-        label: "Total bytes sent",
+        graphPlot: `${(metric.total_bytes_sent / 1000000000).toFixed(2)}`,
+        label: "Total bytes sent (GB)",
       },
     ];
   });
@@ -172,7 +179,7 @@ function Dashboard() {
     return [
       {
         createdAt: metric.createdAt,
-        graphPlot: metric.total_bytes_received,
+        graphPlot: `${(metric.total_bytes_received / 1000000000).toFixed(2)}`,
         label: "Total bytes recieved",
       },
     ];
@@ -181,7 +188,7 @@ function Dashboard() {
     return [
       {
         createdAt: metric.createdAt,
-        graphPlot: metric.total_bytes_read,
+        graphPlot: `${(metric.total_bytes_read / 1000000000).toFixed(2)}`,
         label: "Total bytes read",
       },
     ];
@@ -190,7 +197,7 @@ function Dashboard() {
     return [
       {
         createdAt: metric.createdAt,
-        graphPlot: metric.total_bytes_written,
+        graphPlot: `${(metric.total_bytes_written / 1000000000).toFixed(2)}`,
         label: "Total bytes written",
       },
     ];
@@ -200,7 +207,7 @@ function Dashboard() {
     return [
       {
         createdAt: metric.createdAt,
-        graphPlot: metric.used_ram,
+        graphPlot: `${(metric.used_ram / 1000000000).toFixed(2)}`,
         label: "Total used ram",
       },
     ];
@@ -275,7 +282,20 @@ function Dashboard() {
           <LineGraph title={"Used swap"} metrics={usedSwapMetrics} />
           <LineGraph title={"Free swap"} metrics={freeSwapMetrics} />
           <LineGraph title={"Used ram"} metrics={usedRamMetrics} />
-          <LineGraph title={"Used ram %"} metrics={ramUsagePercentageMetrics} />
+          <LineGraph
+            title={"Used ram %"}
+            amberAnnotationOptions={{
+              display: true,
+              yMin: 80,
+              yMax: 70,
+            }}
+            redAnnotationOptions={{
+              display: true,
+              yMin: 80,
+              yMax: 100,
+            }}
+            metrics={ramUsagePercentageMetrics}
+          />
         </SimpleGrid>
         <Title>Cpu metrics</Title>
         <SimpleGrid mt={20} mb={20} cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>

@@ -11,18 +11,18 @@ class ApiInterface:
             'Client-ID': client_id,
             'Content-Type': 'application/json',
         }
-    
+
     def _sanitize_url(self, url):
         return url.strip().rstrip('/')
 
     def call_api(self, endpoint, data):
-
         try:
-            response = httpx.post(self.api_url + endpoint, headers=self.headers, data=data)
+            response = httpx.post(self.api_url + endpoint,
+                                  headers=self.headers, data=data)
 
         except httpx.HTTPError as exc:
             return 000, json.dumps({'error': 'HTTPError', 'message': str(exc)})
-        
+
         try:
             response_json = response.json()
         except:

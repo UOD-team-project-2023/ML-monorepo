@@ -1,6 +1,6 @@
 import { Group, Navbar, Flex, Code, Title, Image } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { Dashboard, Icon } from "tabler-icons-react";
+import { AlertCircle, Dashboard, Icon, Man, Users } from "tabler-icons-react";
 import { UserProfileButton } from "../profile/UserProfileButton";
 import { useStyles } from "./dashboardNavbar.styles";
 import monitorLizardLogo from "../../../public/monitor_lizard.png";
@@ -15,12 +15,10 @@ export interface NavBarLinks {
 const data: NavBarLinks[] = [
   { link: "", label: "Public", icon: null },
   { link: "/dashboard", label: "Dashboard", icon: Dashboard },
-  { link: "/stats", label: "Overview", icon: Dashboard },
-  { link: "/alerts", label: "Alerts", icon: Dashboard },
+  { link: "/alerts", label: "Alerts", icon: AlertCircle },
   { link: "", label: "Admin", icon: null },
-  { link: "/groups", label: "Groups", icon: Dashboard },
-  { link: "/settings", label: "Settings", icon: Dashboard },
-  { link: "/sysconfig", label: "Sys config", icon: Dashboard },
+  { link: "/groups", label: "Client groups", icon: Man },
+  { link: "/accounts", label: "Accounts", icon: Users },
 ];
 
 interface Props {

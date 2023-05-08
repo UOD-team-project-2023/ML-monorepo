@@ -41,7 +41,7 @@ export interface Metric {
   adapter_information: AdapterInformation[];
   available_ram: number;
   boot_time: string; // date string
-  client: null; // TODO: what is this?
+  client: null;
   clientID: string;
   core_utilization: CoreUtilization[];
   createdAt: string; // date string

@@ -122,7 +122,6 @@ class Probe():
             return False
 
     def setup_client_id(self):
-
         data = read_from_disk("data.dat")
 
         if data != None:
@@ -179,8 +178,8 @@ class Probe():
             time.sleep(1)
 
     def register_with_server(self):
-
-        returned_http_status, returned_json = self.api.call_api("/create_client", self.persistant_data['client_id'])
+        returned_http_status, returned_json = self.api.call_api(
+            "/create_client", self.persistant_data['client_id'])
 
         if returned_http_status == 200:
             self.logger.debug('Registration successful.')

@@ -7,8 +7,7 @@ router = APIRouter()
 
 
 @router.post("/create_client", tags=["clients"])
-async def create_user(request: Request):
-
+async def create_client(request: Request):
     if request.headers.get("PSK") != os.environ.get("PSK"):
         raise HTTPException(status_code=401, detail=f"unauthorized")
 
