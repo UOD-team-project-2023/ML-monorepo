@@ -4,57 +4,51 @@ export const useStyles = createStyles((theme, _params) => {
   const icon = getStylesRef("icon");
   return {
     navbar: {
-      backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.colors.gray[2],
+      backgroundColor: theme.colors.dark[7],
     },
     header: {
       paddingBottom: theme.spacing.md,
       marginBottom: `calc(theme.spacing.md * 1.5)`,
-      borderBottom: `1px solid ${
-        theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.colors.gray[2]
-      }`,
+      borderBottom: `1px solid ${theme.colors.dark[8]}`,
     },
 
     footer: {
       paddingTop: theme.spacing.md,
       marginTop: theme.spacing.md,
-      borderTop: `1px solid ${
-        theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.colors.gray[2]
-      }`,
+      borderTop: `1px solid ${theme.colors.dark[8]}`,
     },
 
     link: {
-      ...theme.fn.focusStyles(),
       display: "flex",
       gap: "10px",
       alignItems: "center",
-      textDecoration: "none",
       fontSize: theme.fontSizes.sm,
-      color: theme.colorScheme === "dark" ? theme.colors.dark[1] : theme.colors.gray[7],
-      padding: `${theme.spacing.xs}px ${theme.spacing.sm}px`,
+      color: theme.colors.dark[1],
+      padding: theme.spacing.sm,
       borderRadius: theme.radius.sm,
-      fontWeight: 500,
       marginBottom: "5px",
 
       "&:hover": {
-        backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.colors.gray[0],
-        color: theme.colorScheme === "dark" ? theme.white : theme.black,
+        backgroundColor: theme.colors.dark[6],
+        color: theme.white,
         width: "100%",
 
         [`& .${icon}`]: {
-          color: theme.colorScheme === "dark" ? theme.white : theme.black,
+          color: theme.white,
         },
       },
     },
 
     linkIcon: {
       ref: icon,
-      color: theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.colors.gray[6],
+      color: theme.colors.dark[8],
       marginRight: theme.spacing.sm,
     },
 
     linkActive: {
+      fontWeight: 500,
       "&, &:hover": {
-        backgroundColor: theme.colors.dark[8],
+        backgroundColor: theme.colors.dark[6],
         color: theme.white,
       },
     },

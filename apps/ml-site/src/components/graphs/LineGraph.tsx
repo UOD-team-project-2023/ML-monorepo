@@ -4,28 +4,22 @@ import {
   LinearScale,
   PointElement,
   LineElement,
-  Title,
   Tooltip,
   Legend,
   TimeScale,
   Filler,
   LogarithmicScale,
-  CoreChartOptions,
   ChartOptions,
   ChartData,
-  Chart,
-  LineControllerDatasetOptions,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-moment";
-import { Button, Paper, useMantineTheme } from "@mantine/core";
-import { Metric, Partition } from "../../types/metric";
+import { Paper, useMantineTheme, Title, Button, Center, Box } from "@mantine/core";
+import { Metric } from "../../types/metric";
 import { getGraphColor } from "../../utils/getGraphColor";
 import Zoom from "chartjs-plugin-zoom";
 import { useRef } from "react";
-import { TypedChartComponent } from "react-chartjs-2/dist/types";
-import annotationPlugin, { AnnotationOptions } from "chartjs-plugin-annotation";
-import { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
+import annotationPlugin from "chartjs-plugin-annotation";
 
 ChartJS.register(
   CategoryScale,
@@ -33,7 +27,6 @@ ChartJS.register(
   PointElement,
   LineElement,
   TimeScale,
-  Title,
   Tooltip,
   Legend,
   Filler,
@@ -112,10 +105,10 @@ export function LineGraph({
           },
         },
       },
-      title: {
-        display: true,
-        text: title,
-      },
+      // title: {
+      //   display: true,
+      //   text: title,
+      // },
       zoom: {
         pan: {
           enabled: true,
@@ -172,9 +165,7 @@ export function LineGraph({
       return check;
     }
     const date = new Date(metric[0].createdAt);
-    const formattedDate = `${date.getUTCFullYear()}/${
-      date.getUTCMonth() + 1
-    }/${date.getUTCDate()} ${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`;
+    const formattedDate = date.toLocaleTimeString();
 
     return formattedDate;
   });
@@ -207,19 +198,25 @@ export function LineGraph({
   };
   return (
     <>
-      {large ? (
-        <Paper sx={{ backgroundColor: theme.colors.dark[6] }}>
-          <Line data={data} options={options} />
-        </Paper>
-      ) : (
-        <>
-          <Paper
-            sx={{ backgroundColor: theme.colors.dark[6] }}
-            shadow={"lg"}
-            radius="md"
-            p="md"
-            style={{ width: 800, height: 450 }}
-          >
+      <Box
+        style={{
+          backgroundColor: theme.colors.dark[6],
+          borderRadius: theme.radius.md,
+          padding: theme.spacing.md,
+          width: "100%",
+        }}
+      >
+        {large ? (
+          <Paper sx={{ backgroundColor: theme.colors.dark[6] }}>
+            <Line data={data} options={options} />
+          </Paper>
+        ) : (
+          <>
+            <Center>
+              <Title underline size={15}>
+                {title}
+              </Title>
+            </Center>
             <Button
               onClick={() => {
                 const chart = chartRef.current;
@@ -229,9 +226,9 @@ export function LineGraph({
               Reset zoom
             </Button>
             <Line ref={chartRef} data={data} options={options} />
-          </Paper>
-        </>
-      )}
+          </>
+        )}
+      </Box>
     </>
   );
 }

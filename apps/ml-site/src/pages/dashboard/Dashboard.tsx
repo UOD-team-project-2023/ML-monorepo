@@ -1,16 +1,16 @@
-import { Group, Text, Paper, RingProgress, SimpleGrid, useMantineTheme, Grid } from "@mantine/core";
+import { Group, Text, Paper, RingProgress, SimpleGrid, useMantineTheme, Box } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { LineGraph } from "../../components/graphs/LineGraph";
 import { CoreUtilization, GpuUsage, Metric, Partition } from "../../types/metric";
 import { calculateStatsRingColor } from "../../utils/calculateStatsRingColor";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { Loading } from "../../components/loading/Loading";
-import { Navigate } from "react-router-dom";
 
 function Dashboard() {
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [refetch, setRefetch] = useState(false);
   const newestMetric = metrics[metrics.length - 1];
+  const theme = useMantineTheme();
 
   const token = sessionStorage.getItem("token");
 
@@ -131,69 +131,58 @@ function Dashboard() {
     <>
       <CustomAppShell selected={1}>
         <StatsRing data={statsRingData} />
-        <br />
-        <Grid grow>
-          <Grid.Col span={4}>
-            <LineGraph
-              title={"Gpu usage %"}
-              metrics={gpuLoadMetrics}
-              maxY={1}
-              amberAnnotationOptions={{
-                display: true,
-                yMin: 0.7,
-                yMax: 0.8,
-              }}
-              redAnnotationOptions={{
-                display: true,
-                yMin: 0.8,
-                yMax: 1,
-              }}
-            />
-          </Grid.Col>
-          <Grid.Col span={4}>
-            <LineGraph
-              title={"Gpu temperature"}
-              metrics={gpuTemperatureMetrics}
-              amberAnnotationOptions={{
-                display: true,
-                yMin: 80,
-                yMax: 70,
-              }}
-              redAnnotationOptions={{
-                display: true,
-                yMin: 80,
-                yMax: 100,
-              }}
-            />
-          </Grid.Col>
-          <Grid.Col span={4}>
-            <LineGraph title={"Gpu memory"} metrics={gpuMemoryMetrics} />
-          </Grid.Col>
-        </Grid>
-        <Grid grow>
-          <Grid.Col span={4}>
-            <LineGraph title={"Storage usage"} metrics={partitionMetrics} />
-          </Grid.Col>
-        </Grid>
-        <Grid grow>
-          <Grid.Col span={4}>
-            <LineGraph
-              title={"Cpu core utilization"}
-              metrics={cpuCoreUtilizationMetrics}
-              maxY={100}
-              amberAnnotationOptions={{
-                display: true,
-                yMin: 80,
-                yMax: 70,
-              }}
-              redAnnotationOptions={{
-                display: true,
-                yMin: 80,
-                yMax: 100,
-              }}
-            />
-          </Grid.Col>
-        </Grid>
+        <SimpleGrid mt={20} mb={20} cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+          <LineGraph
+            title={"Gpu usage %"}
+            metrics={gpuLoadMetrics}
+            maxY={1}
+            amberAnnotationOptions={{
+              display: true,
+              yMin: 0.6,
+              yMax: 0.8,
+            }}
+            redAnnotationOptions={{
+              display: true,
+              yMin: 0.8,
+              yMax: 1,
+            }}
+          />
+          <LineGraph title={"Gpu memory (MB)"} metrics={gpuMemoryMetrics} />
+          <LineGraph
+            title={"Gpu temperature"}
+            metrics={gpuTemperatureMetrics}
+            amberAnnotationOptions={{
+              display: true,
+              yMin: 80,
+              yMax: 70,
+            }}
+            redAnnotationOptions={{
+              display: true,
+              yMin: 80,
+              yMax: 100,
+            }}
+          />
+        </SimpleGrid>
+        <SimpleGrid mb={20} cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+          <LineGraph title={"Storage usage"} metrics={partitionMetrics} />
+        </SimpleGrid>
+        <SimpleGrid mb={20} cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+          <LineGraph
+            title={"Cpu core utilization"}
+            metrics={cpuCoreUtilizationMetrics}
+            maxY={100}
+            amberAnnotationOptions={{
+              display: true,
+              yMin: 80,
+              yMax: 70,
+            }}
+            redAnnotationOptions={{
+              display: true,
+              yMin: 80,
+              yMax: 100,
+            }}
+          />
+        </SimpleGrid>
       </CustomAppShell>
     </>
   );
@@ -227,10 +216,10 @@ function StatsRing({ data }: StatsRingProps) {
             sections={[{ value: stat.progress, color: stat.color }]}
           />
           <div>
-            <Text color="dimmed" size="xs" transform="uppercase" weight={700}>
+            <Text color="dimmed" size="xs" transform="uppercase" weight={600}>
               {stat.label}
             </Text>
-            <Text weight={700} size="xl">
+            <Text weight={600} size="xl">
               {stat.stats}
             </Text>
           </div>

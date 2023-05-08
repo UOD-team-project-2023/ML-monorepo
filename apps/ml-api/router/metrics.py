@@ -12,7 +12,23 @@ async def metrics(client_id: str, token: str):
         raise HTTPException(
             status_code=400, detail="Unauthorized")
 
-    metrics = await prisma.dynamicmetric.find_many(where={
-        "clientID": client_id,
-    })
+    total_count = await prisma.dynamicmetric.count(
+        where={
+            "clientID": client_id,
+        }
+    )
+    graph_plots = 50
+    skip_records = max(0, total_count - graph_plots)
+
+    metrics = await prisma.dynamicmetric.find_many(
+        where={
+            "clientID": client_id,
+        },
+        order={
+            "createdAt": "asc",  # or "updatedAt": "desc" depending on your field
+        },
+        skip=skip_records,
+        take=graph_plots,
+    )
+
     return metrics

@@ -1,4 +1,4 @@
-import { Group, Navbar, useMantineTheme, Flex, Code, Title, Image } from "@mantine/core";
+import { Group, Navbar, Flex, Code, Title, Image } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { Dashboard, Icon } from "tabler-icons-react";
 import { UserProfileButton } from "../profile/UserProfileButton";

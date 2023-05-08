@@ -46,6 +46,15 @@ async def create_user(request: Request):
         raise HTTPException(
             status_code=400, detail="Password doesn't contain a special character")
 
+    check_user = await prisma.users.find_first(
+        where={
+            "username": request.username
+        }
+    )
+    if check_user:
+        raise HTTPException(
+            status_code=400, detail="Username already exists")
+
     user = await prisma.users.create(data={
         "username": request.username,
         "password": request.password,
