@@ -173,7 +173,7 @@ function Dashboard() {
       {
         createdAt: metric.createdAt,
         graphPlot: metric.total_bytes_received,
-        label: "Total bytes sent",
+        label: "Total bytes recieved",
       },
     ];
   });
@@ -201,7 +201,7 @@ function Dashboard() {
       {
         createdAt: metric.createdAt,
         graphPlot: metric.used_ram,
-        label: "Total bytes written",
+        label: "Total used ram",
       },
     ];
   });
@@ -210,7 +210,7 @@ function Dashboard() {
       {
         createdAt: metric.createdAt,
         graphPlot: metric.total_ram_usage,
-        label: "Total bytes written",
+        label: "Total used ram percentage",
       },
     ];
   });
@@ -219,7 +219,7 @@ function Dashboard() {
       {
         createdAt: metric.createdAt,
         graphPlot: metric.total_cpu_usage,
-        label: "Total bytes written",
+        label: "Total used CPU percentage",
       },
     ];
   });
@@ -227,7 +227,6 @@ function Dashboard() {
   return (
     <>
       <CustomAppShell selected={1}>
-        <Title>{}</Title>
         <StatsRing data={statsRingData} />
         <Title>Swap metrics</Title>
         <SimpleGrid mt={20} mb={20} cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
@@ -280,13 +279,9 @@ function Dashboard() {
         </SimpleGrid>
         <Title>Cpu metrics</Title>
         <SimpleGrid mt={20} mb={20} cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+          <LineGraph title={"Cpu core usage"} metrics={cpuCoreUtilizationMetrics} maxY={100} />
           <LineGraph
-            title={"Cpu core utilization"}
-            metrics={cpuCoreUtilizationMetrics}
-            maxY={100}
-          />
-          <LineGraph
-            title={"Cpu usage %"}
+            title={"Cpu usage"}
             metrics={cpuUsagePercentageMetrics}
             maxY={100}
             amberAnnotationOptions={{
