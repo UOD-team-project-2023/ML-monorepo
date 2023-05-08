@@ -284,16 +284,6 @@ function Dashboard() {
             title={"Cpu core utilization"}
             metrics={cpuCoreUtilizationMetrics}
             maxY={100}
-            amberAnnotationOptions={{
-              display: true,
-              yMin: 80,
-              yMax: 70,
-            }}
-            redAnnotationOptions={{
-              display: true,
-              yMin: 80,
-              yMax: 100,
-            }}
           />
           <LineGraph
             title={"Cpu usage %"}
