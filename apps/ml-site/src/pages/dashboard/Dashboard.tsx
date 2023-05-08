@@ -1,4 +1,13 @@
-import { Group, Text, Paper, RingProgress, SimpleGrid, useMantineTheme, Box } from "@mantine/core";
+import {
+  Group,
+  Text,
+  Paper,
+  RingProgress,
+  SimpleGrid,
+  useMantineTheme,
+  Box,
+  Title,
+} from "@mantine/core";
 import { useEffect, useState } from "react";
 import { LineGraph } from "../../components/graphs/LineGraph";
 import { CoreUtilization, GpuUsage, Metric, Partition } from "../../types/metric";
@@ -19,8 +28,6 @@ function Dashboard() {
       setRefetch(!refetch);
     }, 30000);
   }, [refetch]);
-
-  console.log(refetch);
 
   useEffect(() => {
     async function fetchData() {
@@ -127,10 +134,81 @@ function Dashboard() {
     })
   );
 
+  const freeSwapMetrics = metrics.map((metric: Metric) => {
+    return [
+      {
+        createdAt: metric.createdAt,
+        graphPlot: metric.free_swap,
+        label: "free swap",
+      },
+    ];
+  });
+  const totalSwapMetrics = metrics.map((metric: Metric) => {
+    return [
+      {
+        createdAt: metric.createdAt,
+        graphPlot: metric.total_swap,
+        label: "Total swap",
+      },
+    ];
+  });
+  const usedSwapMetrics = metrics.map((metric: Metric) => {
+    return [
+      {
+        createdAt: metric.createdAt,
+        graphPlot: metric.used_swap,
+        label: "Used swap",
+      },
+    ];
+  });
+  // total_bytes_sent;
+  // total_bytes_received;
+  // total_bytes_read;
+  // total_bytes_written;
+
+  const totalBytesSentMetrics = metrics.map((metric: Metric) => {
+    return [
+      {
+        createdAt: metric.createdAt,
+        graphPlot: metric.total_bytes_sent,
+        label: "Total bytes sent",
+      },
+    ];
+  });
+  const totalBytesRecievedMetrics = metrics.map((metric: Metric) => {
+    return [
+      {
+        createdAt: metric.createdAt,
+        graphPlot: metric.total_bytes_received,
+        label: "Total bytes sent",
+      },
+    ];
+  });
+  const totalBytesReadMetrics = metrics.map((metric: Metric) => {
+    return [
+      {
+        createdAt: metric.createdAt,
+        graphPlot: metric.total_bytes_read,
+        label: "Total bytes read",
+      },
+    ];
+  });
+  const totalBytesWrittenMetrics = metrics.map((metric: Metric) => {
+    return [
+      {
+        createdAt: metric.createdAt,
+        graphPlot: metric.total_bytes_written,
+        label: "Total bytes written",
+      },
+    ];
+  });
+
   return (
     <>
       <CustomAppShell selected={1}>
+        <Title>{}</Title>
         <StatsRing data={statsRingData} />
+        <Title>Swap metrics</Title>
         <SimpleGrid mt={20} mb={20} cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
           <LineGraph
             title={"Gpu usage %"}
@@ -163,8 +241,18 @@ function Dashboard() {
             }}
           />
         </SimpleGrid>
-        <SimpleGrid mb={20} cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+        <Title>Storage metrics</Title>
+        <SimpleGrid mt={20} mb={20} cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+          <LineGraph title={"Total bytes sent"} metrics={totalBytesSentMetrics} />
+          <LineGraph title={"Total bytes recieved"} metrics={totalBytesRecievedMetrics} />
+          <LineGraph title={"Total bytes read"} metrics={totalBytesReadMetrics} />
+          <LineGraph title={"Total bytes written"} metrics={totalBytesWrittenMetrics} />
           <LineGraph title={"Storage usage"} metrics={partitionMetrics} />
+        </SimpleGrid>
+        <SimpleGrid mt={20} mb={20} cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+          <LineGraph title={"Total swap"} metrics={totalSwapMetrics} />
+          <LineGraph title={"Used swap"} metrics={usedSwapMetrics} />
+          <LineGraph title={"Free swap"} metrics={freeSwapMetrics} />
         </SimpleGrid>
         <SimpleGrid mb={20} cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
           <LineGraph

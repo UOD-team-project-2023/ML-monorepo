@@ -25,7 +25,7 @@ async def metrics(client_id: str, token: str):
             "clientID": client_id,
         },
         order={
-            "createdAt": "asc",  # or "updatedAt": "desc" depending on your field
+            "createdAt": "asc",
         },
         skip=skip_records,
         take=graph_plots,
