@@ -105,10 +105,6 @@ export function LineGraph({
           },
         },
       },
-      // title: {
-      //   display: true,
-      //   text: title,
-      // },
       zoom: {
         pan: {
           enabled: true,

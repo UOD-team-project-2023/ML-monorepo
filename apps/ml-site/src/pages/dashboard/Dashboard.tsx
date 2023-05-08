@@ -19,7 +19,6 @@ function Dashboard() {
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [refetch, setRefetch] = useState(false);
   const newestMetric = metrics[metrics.length - 1];
-  const theme = useMantineTheme();
 
   const token = sessionStorage.getItem("token");
 
@@ -31,14 +30,12 @@ function Dashboard() {
 
   useEffect(() => {
     async function fetchData() {
-      console.log("1");
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/metrics?client_id=${
           import.meta.env.VITE_CLIENT_ID
         }&token=${token}`
       );
 
-      console.log(response);
       if (response.status !== 200) {
         console.log("2");
         window.location.href = "/register?error=unauthorized";
@@ -161,10 +158,6 @@ function Dashboard() {
       },
     ];
   });
-  // total_bytes_sent;
-  // total_bytes_received;
-  // total_bytes_read;
-  // total_bytes_written;
 
   const totalBytesSentMetrics = metrics.map((metric: Metric) => {
     return [
@@ -198,6 +191,34 @@ function Dashboard() {
       {
         createdAt: metric.createdAt,
         graphPlot: metric.total_bytes_written,
+        label: "Total bytes written",
+      },
+    ];
+  });
+
+  const usedRamMetrics = metrics.map((metric: Metric) => {
+    return [
+      {
+        createdAt: metric.createdAt,
+        graphPlot: metric.used_ram,
+        label: "Total bytes written",
+      },
+    ];
+  });
+  const ramUsagePercentageMetrics = metrics.map((metric: Metric) => {
+    return [
+      {
+        createdAt: metric.createdAt,
+        graphPlot: metric.total_ram_usage,
+        label: "Total bytes written",
+      },
+    ];
+  });
+  const cpuUsagePercentageMetrics = metrics.map((metric: Metric) => {
+    return [
+      {
+        createdAt: metric.createdAt,
+        graphPlot: metric.total_cpu_usage,
         label: "Total bytes written",
       },
     ];
@@ -249,15 +270,34 @@ function Dashboard() {
           <LineGraph title={"Total bytes written"} metrics={totalBytesWrittenMetrics} />
           <LineGraph title={"Storage usage"} metrics={partitionMetrics} />
         </SimpleGrid>
+        <Title>Memory metrics</Title>
         <SimpleGrid mt={20} mb={20} cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
           <LineGraph title={"Total swap"} metrics={totalSwapMetrics} />
           <LineGraph title={"Used swap"} metrics={usedSwapMetrics} />
           <LineGraph title={"Free swap"} metrics={freeSwapMetrics} />
+          <LineGraph title={"Used ram"} metrics={usedRamMetrics} />
+          <LineGraph title={"Used ram %"} metrics={ramUsagePercentageMetrics} />
         </SimpleGrid>
-        <SimpleGrid mb={20} cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+        <Title>Cpu metrics</Title>
+        <SimpleGrid mt={20} mb={20} cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
           <LineGraph
             title={"Cpu core utilization"}
             metrics={cpuCoreUtilizationMetrics}
+            maxY={100}
+            amberAnnotationOptions={{
+              display: true,
+              yMin: 80,
+              yMax: 70,
+            }}
+            redAnnotationOptions={{
+              display: true,
+              yMin: 80,
+              yMax: 100,
+            }}
+          />
+          <LineGraph
+            title={"Cpu usage %"}
+            metrics={cpuUsagePercentageMetrics}
             maxY={100}
             amberAnnotationOptions={{
               display: true,

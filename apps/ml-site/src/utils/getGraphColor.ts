@@ -1,5 +1,22 @@
 export function getGraphColor(index: number) {
-  const colors = ["pink", "orange", "green", "orange", "blue", "purple", "teal", "yellow"];
+  const colors = [
+    "pink",
+    "Blue",
+    "Orange",
+    "Red",
+    "Cyan",
+    "Green",
+    "Magenta",
+    "Yellow",
+    "Purple",
+    "Teal",
+    "Coral",
+    "Navy",
+    "Peach",
+    "Maroon",
+    "Aqua",
+    "Olive",
+  ];
   if (index >= colors.length) {
     return colors[0];
   }
