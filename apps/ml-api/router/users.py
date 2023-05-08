@@ -1,4 +1,6 @@
 import uuid
+
+from helpers.try_int import try_int
 from fastapi import APIRouter, HTTPException
 from db import prisma
 from pydantic import BaseModel
@@ -80,3 +82,37 @@ async def user_profile(token: str):
     if not user:
         raise HTTPException(status_code=400, detail="No User found")
     return {"user": user}
+
+
+@router.get("/users", tags=["users"])
+async def users(token: str):
+    # TODO: check if token is for admin acc
+    users = await prisma.users.find_many()
+    if not users:
+        raise HTTPException(status_code=400, detail="No User found")
+
+    accounts = []
+    for user in users:
+        accounts.append({
+            "id": user.id,
+            "username": user.username,
+            "permission": user.permission,
+            "role": "developer",
+            "email": "logan02@gmail.com",
+        })
+
+    return {"users": accounts}
+
+
+@router.delete("/delete_account", tags=["users"])
+async def users(account_id: str, token: str):
+    account_id = try_int(account_id)
+    action_author = await prisma.users.find_first(where={"token": token})
+
+    if action_author.id == account_id:
+        raise HTTPException(
+            status_code=400, detail="You can't delete your own account")
+
+    await prisma.users.delete(where={"id": account_id})
+
+    return {"detail": "Successfully deleted user account"}

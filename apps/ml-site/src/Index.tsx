@@ -4,6 +4,7 @@ import ReactDOM from "react-dom/client";
 import App from "./Router";
 import "./styles/globals.css";
 import { Notifications } from "@mantine/notifications";
+import { ModalsProvider } from "@mantine/modals";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
@@ -16,7 +17,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       }}
     >
       <Notifications />
-      <App />
+      <ModalsProvider>
+        <App />
+      </ModalsProvider>
     </MantineProvider>
   </React.StrictMode>
 );
