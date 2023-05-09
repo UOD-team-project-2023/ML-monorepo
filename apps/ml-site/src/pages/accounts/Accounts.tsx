@@ -24,6 +24,7 @@ interface User {
   id: string;
   username: string;
   permission: string;
+  me: boolean;
 }
 
 function Accounts() {
@@ -264,7 +265,14 @@ function Accounts() {
                 <td>
                   <Group>
                     <Avatar color={"blue"} radius="xl" />
-                    <Title size={20}>{account.username}</Title>
+                    <Flex direction={"column"}>
+                      <Title size={20}>{account.username}</Title>
+                      {account.me && (
+                        <Text color={theme.colors.dark[2]} size={13}>
+                          You
+                        </Text>
+                      )}
+                    </Flex>
                   </Group>
                 </td>
                 <td>
