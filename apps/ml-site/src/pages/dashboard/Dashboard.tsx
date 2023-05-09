@@ -6,6 +6,7 @@ import {
   SimpleGrid,
   useMantineTheme,
   Title,
+  Button,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { LineGraph } from "../../components/graphs/LineGraph";
@@ -13,9 +14,11 @@ import { CoreUtilization, GpuUsage, Metric, Partition } from "../../types/metric
 import { calculateStatsRingColor } from "../../utils/calculateStatsRingColor";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { Loading } from "../../components/loading/Loading";
+import { CSVLink } from "react-csv";
 
 function Dashboard() {
   const [metrics, setMetrics] = useState<Metric[]>([]);
+  const [allMetrics, setAllMetrics] = useState<Metric[]>([]);
   const [refetch, setRefetch] = useState(false);
   const [fetchingMetrics, setFetchingMetrics] = useState(false);
   const newestMetric = metrics[metrics.length - 1];
@@ -47,6 +50,16 @@ function Dashboard() {
     fetchData();
     setFetchingMetrics(false);
   }, [refetch]);
+
+  async function fetchAllMetrics() {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/metrics/export?client_id=${
+        import.meta.env.VITE_CLIENT_ID
+      }&token=${token}`
+    );
+    const data = await response.json();
+    setAllMetrics(data);
+  }
 
   if (fetchingMetrics) return <Loading />;
   if (!metrics.length)
@@ -234,6 +247,15 @@ function Dashboard() {
   return (
     <>
       <CustomAppShell selected={1}>
+        <Button
+          onClick={() => {
+            fetchAllMetrics();
+          }}
+        >
+          {" "}
+          Export: CSV
+        </Button>
+        <CSVLink data={allMetrics}>Download me</CSVLink>;
         <StatsRing data={statsRingData} />
         <Title>Swap metrics</Title>
         <SimpleGrid mt={20} mb={20} cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
