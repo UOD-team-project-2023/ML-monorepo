@@ -209,6 +209,7 @@ function Accounts() {
           }}
         />
         <Button
+          mt={10}
           onClick={() => {
             if (!account) return;
             editAccount(account);
@@ -219,6 +220,7 @@ function Accounts() {
         </Button>
       </Modal>
       <Modal
+        title={"Create account"}
         opened={createAccountModalOpened}
         onClose={() => setCreateAccountModalOpened(!createAccountModalOpened)}
       >
