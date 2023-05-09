@@ -1,5 +1,8 @@
 import uuid
-from fastapi import APIRouter, HTTPException
+
+from helpers.try_int import try_int
+from fastapi import APIRouter, HTTPException, Request
+from typing import Annotated
 from db import prisma
 from pydantic import BaseModel
 from helpers.password import has_numbers, has_lowercase, has_uppercase, has_specialchar
@@ -19,36 +22,36 @@ async def user_list(user_id: int):
     return user
 
 
-class Request(BaseModel):
+class CreateUserData(BaseModel):
     username: str
     password: str
     access_level: str
 
 
 @router.post("/create_user", tags=["users"])
-async def create_user(request: Request):
-    if len(request.username) < 1:
+async def create_user(user_payload: CreateUserData):
+    if len(user_payload.username) < 1:
         raise HTTPException(
             status_code=400, detail="Username Length must be at least 1 character")
-    if len(request.password) < 6:
+    if len(user_payload.password) < 6:
         raise HTTPException(
             status_code=400, detail="Password length has to be >= 6")
-    elif has_numbers(request.password) == False:
+    elif has_numbers(user_payload.password) == False:
         raise HTTPException(
             status_code=400, detail="Password doesn't contain a numeric value")
-    elif has_lowercase(request.password) == False:
+    elif has_lowercase(user_payload.password) == False:
         raise HTTPException(
             status_code=400, detail="Password doesn't contain a lowercase value")
-    elif has_uppercase(request.password) == False:
+    elif has_uppercase(user_payload.password) == False:
         raise HTTPException(
             status_code=400, detail="Password doesn't contain a uppercase value")
-    elif has_specialchar(request.password) == False:
+    elif has_specialchar(user_payload.password) == False:
         raise HTTPException(
             status_code=400, detail="Password doesn't contain a special character")
 
     check_user = await prisma.users.find_first(
         where={
-            "username": request.username
+            "username": user_payload.username
         }
     )
     if check_user:
@@ -56,12 +59,12 @@ async def create_user(request: Request):
             status_code=400, detail="Username already exists")
 
     user = await prisma.users.create(data={
-        "username": request.username,
-        "password": request.password,
-        "permission": request.access_level,
+        "username": user_payload.username,
+        "password": user_payload.password,
+        "permission": user_payload.access_level,
         "token": str(uuid.uuid4())
-    }
-    )
+    })
+
     return ({"detail": "Registration Confirmed",
              "token": user.token})
 
@@ -80,3 +83,64 @@ async def user_profile(token: str):
     if not user:
         raise HTTPException(status_code=400, detail="No User found")
     return {"user": user}
+
+
+@router.get("/users", tags=["users"])
+async def users(token: str):
+    # TODO: check if token is for admin acc
+    users = await prisma.users.find_many()
+    if not users:
+        raise HTTPException(status_code=400, detail="No User found")
+
+    accounts = []
+    for user in users:
+        accounts.append({
+            "id": user.id,
+            "username": user.username,
+            "permission": user.permission,
+            "role": "developer",
+            "email": "logan02@gmail.com",
+        })
+
+    return {"users": accounts}
+
+
+@router.delete("/delete_account", tags=["users"])
+async def users(account_id: str, token: str):
+    account_id = try_int(account_id)
+    action_author = await prisma.users.find_first(where={"token": token})
+
+    if action_author.id == account_id:
+        raise HTTPException(
+            status_code=400, detail="You can't delete your own account")
+
+    await prisma.users.delete(where={"id": account_id})
+
+    return {"detail": "Successfully deleted user account"}
+
+
+class EditAccountData(BaseModel):
+    account_id: int
+    username: str
+    permission: str
+
+
+@router.put("/edit_account", tags=["users"])
+async def users(request: Request, account: EditAccountData):
+    # TODO: check auth
+    token = request.headers.get("authorization")
+    action_author = await prisma.users.find_first(where={"token": token})
+    if not action_author:
+        raise HTTPException(
+            status_code=401, detail="You do not have permission to edit other peoples accounts")
+
+    if action_author.permission != "ADMIN":
+        raise HTTPException(
+            status_code=401, detail="You do not have permission to edit other peoples accounts")
+
+    await prisma.users.update(where={"id": account.account_id}, data={
+        "username": account.username,
+        "permission": account.permission
+    })
+
+    return {"detail": "Successfully edited user account"}
