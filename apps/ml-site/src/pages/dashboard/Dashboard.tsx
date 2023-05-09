@@ -6,8 +6,6 @@ import {
   SimpleGrid,
   useMantineTheme,
   Title,
-  MediaQuery,
-  rem,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { LineGraph } from "../../components/graphs/LineGraph";
@@ -15,27 +13,7 @@ import { CoreUtilization, GpuUsage, Metric, Partition } from "../../types/metric
 import { calculateStatsRingColor } from "../../utils/calculateStatsRingColor";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { Loading } from "../../components/loading/Loading";
-
-const useMediaQuery = (query: string) => {
-  const [isMatching, setIsMatching] = useState(false);
-
-  useEffect(() => {
-    const mediaQueryList = window.matchMedia(query);
-
-    const handleChange = (event: any) => {
-      setIsMatching(event.matches);
-    };
-
-    mediaQueryList.addEventListener("change", handleChange);
-    handleChange(mediaQueryList);
-
-    return () => {
-      mediaQueryList.removeEventListener("change", handleChange);
-    };
-  }, [query]);
-
-  return isMatching;
-};
+import { useMediaQuery } from "@mantine/hooks";
 
 function Dashboard() {
   const [metrics, setMetrics] = useState<Metric[]>([]);
@@ -49,11 +27,8 @@ function Dashboard() {
   const mediaQuery = useMediaQuery("(max-width: 80em) and (min-width: 48em)");
 
   useEffect(() => {
-    if (mediaQuery) {
-      setMaxCols(1);
-    } else {
-      setMaxCols(3);
-    }
+    if (mediaQuery) return setMaxCols(1);
+    setMaxCols(3);
   }, [mediaQuery]);
 
   useEffect(() => {
@@ -269,12 +244,7 @@ function Dashboard() {
     <>
       <CustomAppShell selected={1}>
         <StatsRing data={statsRingData} />
-        <MediaQuery
-          query="(max-width: 100em) and (min-width: 48em)"
-          styles={{ fontSize: rem(20), "&:hover": { backgroundColor: "silver" } }}
-        >
-          <h1>hi</h1>
-        </MediaQuery>
+
         <Title>Swap metrics</Title>
         <SimpleGrid mt={20} mb={20} cols={maxCols} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
           <LineGraph

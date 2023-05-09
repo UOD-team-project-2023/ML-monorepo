@@ -17,3 +17,10 @@ async def create_client(request: Request):
 
     if not client_id:
         await prisma.clients.create(data={"clientID": request.headers["client-id"]})
+
+
+@router.get("/clients", tags=["clients"])
+async def get_clients():
+    # TODO: Auth check
+    clients = await prisma.clients.find_many()
+    return {"clients": clients}
