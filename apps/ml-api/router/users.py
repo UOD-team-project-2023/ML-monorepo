@@ -94,12 +94,14 @@ async def users(token: str):
 
     accounts = []
     for user in users:
+        me = False
+        if user.token == token:
+            me = True
         accounts.append({
             "id": user.id,
             "username": user.username,
             "permission": user.permission,
-            "role": "developer",
-            "email": "logan02@gmail.com",
+            "me": me
         })
 
     return {"users": accounts}
