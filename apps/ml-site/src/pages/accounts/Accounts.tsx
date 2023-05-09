@@ -23,8 +23,6 @@ import { notifications } from "@mantine/notifications";
 interface User {
   id: string;
   username: string;
-  email: string;
-  role: string;
   permission: string;
 }
 
@@ -42,12 +40,6 @@ function Accounts() {
   const token = sessionStorage.getItem("token");
 
   useEffect(() => {
-    setTimeout(() => {
-      setRefetch(!refetch);
-    }, 30000);
-  }, [refetch]);
-
-  useEffect(() => {
     async function fetchData() {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/users?token=${token}`);
 
@@ -59,9 +51,47 @@ function Accounts() {
       setAccounts(data.users);
     }
     fetchData();
+    setRefetch(false);
   }, [refetch]);
 
   if (!accounts) return <Loading />;
+
+  const createAccount = async (
+    accountName: string,
+    accountPassword: string,
+    role: string | null
+  ) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/create_user`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: accountName,
+        password: accountPassword,
+        access_level: role,
+      }),
+    });
+    const data = await response.json();
+    if (response.status !== 200) {
+      notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
+      return;
+    }
+    notifications.show({
+      title: "Success!",
+      message: data.detail,
+      color: "green",
+    });
+
+    setRefetch(true);
+    setCreateAccountModalOpened(!createAccountModalOpened);
+
+    return data;
+  };
 
   const deleteAccount = async (accountId: string) => {
     const response = await fetch(
@@ -106,51 +136,20 @@ function Accounts() {
       },
     });
 
-  const createAccount = async (
-    accountName: string,
-    accountPassword: string,
-    role: string | null
-  ) => {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/create_user`, {
-      method: "POST",
+  const editAccount = async (account: User) => {
+    if (!account) return;
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/edit_account`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        authorization: token || "",
       },
       body: JSON.stringify({
-        username: accountName,
-        password: accountPassword,
-        access_level: role,
+        account_id: account.id,
+        username: account.username,
+        permission: account.permission,
       }),
     });
-    const data = await response.json();
-    if (response.status !== 200) {
-      notifications.show({
-        title: "Error",
-        message: data.detail,
-        color: "red",
-      });
-      return;
-    }
-    notifications.show({
-      title: "Success!",
-      message: data.detail,
-      color: "green",
-    });
-
-    setRefetch(true);
-    setCreateAccountModalOpened(!createAccountModalOpened);
-
-    return data;
-  };
-
-  const editAccount = async () => {
-    if (!account) return;
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/edit_account?account_id=${account.id}&token=${token}`,
-      {
-        method: "DELETE",
-      }
-    );
     const data = await response.json();
 
     if (response.status !== 200) {
@@ -180,14 +179,22 @@ function Accounts() {
           value={account?.username}
           label={"Username"}
           onChange={(element) => {
-            setUsername(element.target.value);
+            if (!account) return;
+            const deepAccountCopy = JSON.parse(JSON.stringify(account));
+            deepAccountCopy.username = element.target.value;
+            setAccount(deepAccountCopy);
           }}
         />
         <Select
+          withinPortal
           data={[
             {
               label: "Admin",
               value: "ADMIN",
+            },
+            {
+              label: "Member",
+              value: "MEMBER",
             },
           ]}
           value={account?.permission}
@@ -195,13 +202,15 @@ function Accounts() {
           onChange={(value) => {
             if (!account) return;
             if (!value) return;
-            account.role = value;
+            const deepAccountCopy = JSON.parse(JSON.stringify(account));
+            deepAccountCopy.permission = value;
+            setAccount(deepAccountCopy);
           }}
         />
         <Button
           onClick={() => {
             if (!account) return;
-            editAccount();
+            editAccount(account);
             setOpenEditAccountModal(!openEditAccountModal);
           }}
         >
@@ -220,6 +229,10 @@ function Accounts() {
             {
               label: "Admin",
               value: "ADMIN",
+            },
+            {
+              label: "Member",
+              value: "MEMBER",
             },
           ]}
           onChange={(value) => {
@@ -255,7 +268,9 @@ function Accounts() {
                   </Group>
                 </td>
                 <td>
-                  <Badge>{account.permission}</Badge>
+                  <Badge color={account.permission === "ADMIN" ? "orange" : "green"}>
+                    {account.permission}
+                  </Badge>
                 </td>
                 <td>
                   <Flex align={"center"} gap={5}>

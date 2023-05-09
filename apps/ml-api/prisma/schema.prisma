@@ -78,4 +78,5 @@ model Users {
 
 enum UserPermissionLevel {
   ADMIN
+  MEMBER
 }
