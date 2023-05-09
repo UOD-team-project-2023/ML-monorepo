@@ -62,8 +62,8 @@ async def create_user(request: Request):
         "password": request.password,
         "permission": request.access_level,
         "token": str(uuid.uuid4())
-    }
-    )
+    })
+
     return ({"detail": "Registration Confirmed",
              "token": user.token})
 

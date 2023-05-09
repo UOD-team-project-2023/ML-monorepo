@@ -151,7 +151,7 @@ function Register() {
             <Popover.Dropdown>
               <Progress color={color} value={strength} size={5} mb="x5" />
               <PasswordRequirement
-                label="incluedes at least 6 characters"
+                label="includes at least 6 characters"
                 meets={passvalue.length > 5}
               />
               {checks}
