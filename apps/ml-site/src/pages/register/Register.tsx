@@ -103,6 +103,14 @@ function Register() {
       username: "",
       password: passvalue,
     },
+    validate: {
+      username: (value) => {
+        if (!value) return "Username is required";
+      },
+      password: (value) => {
+        if (!value) return "Password is required";
+      },
+    },
   });
 
   const strength = getStrength(passvalue);
@@ -157,12 +165,6 @@ function Register() {
               {checks}
             </Popover.Dropdown>
           </Popover>
-          <PasswordInput
-            style={{ padding: 5 }}
-            withAsterisk
-            icon={<Lock size={14} />}
-            placeholder="Confirm Password"
-          />
           <Button
             type="submit"
             ml={5}

@@ -270,11 +270,11 @@ function Dashboard() {
         </SimpleGrid>
         <Title>Storage metrics</Title>
         <SimpleGrid mt={20} mb={20} cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-          <LineGraph title={"Total bytes sent"} metrics={totalBytesSentMetrics} />
-          <LineGraph title={"Total bytes recieved"} metrics={totalBytesRecievedMetrics} />
-          <LineGraph title={"Total bytes read"} metrics={totalBytesReadMetrics} />
-          <LineGraph title={"Total bytes written"} metrics={totalBytesWrittenMetrics} />
-          <LineGraph title={"Storage usage"} metrics={partitionMetrics} />
+          <LineGraph title={"Total bytes sent (GB)"} metrics={totalBytesSentMetrics} />
+          <LineGraph title={"Total bytes recieved (GB)"} metrics={totalBytesRecievedMetrics} />
+          <LineGraph title={"Total bytes read (GB)"} metrics={totalBytesReadMetrics} />
+          <LineGraph title={"Total bytes written (GB)"} metrics={totalBytesWrittenMetrics} />
+          <LineGraph title={"Storage usage (GB)"} metrics={partitionMetrics} />
         </SimpleGrid>
         <Title>Memory metrics</Title>
         <SimpleGrid mt={20} mb={20} cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
