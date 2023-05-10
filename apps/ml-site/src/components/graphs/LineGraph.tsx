@@ -191,6 +191,9 @@ export function LineGraph({
     labels,
     datasets: datasets,
   };
+
+  if (!data.datasets) return <></>;
+
   return (
     <>
       <Box
