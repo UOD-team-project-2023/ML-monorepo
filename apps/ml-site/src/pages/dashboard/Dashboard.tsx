@@ -255,10 +255,10 @@ function Dashboard() {
           <button onClick={fetchAllMetrics}>Export CSV</button>
           <Modal
             opened={showModal}
-            title="Download Link"
-            onClose={function (): void {
-              throw new Error("Function not implemented.");
+            onClose={() => {
+              setShowModal(!showModal);
             }}
+            title="Download Link"
           >
             <CSVLink data={allMetrics} style={{ color: theme.colors.blue[5], fontSize: 24 }}>
               Download me
