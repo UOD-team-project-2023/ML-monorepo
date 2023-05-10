@@ -7,14 +7,12 @@ import {
   useMantineTheme,
   Title,
   Modal,
-  Center,
   Drawer,
   Button,
   ScrollArea,
   List,
   Flex,
   rem,
-  Box,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { LineGraph } from "../../components/graphs/LineGraph";
@@ -23,8 +21,6 @@ import { calculateStatsRingColor } from "../../utils/calculateStatsRingColor";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { Loading } from "../../components/loading/Loading";
 import { CSVLink } from "react-csv";
-import { relativeTimeRounding } from "moment";
-
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 
@@ -37,7 +33,10 @@ function Dashboard() {
   const [groups, setGroups] = useState<any[]>([]);
   const [selectedClientId, setSelectedClientId] = useState("");
   const [newestMetric, setNewestMetric] = useState<any>();
+  const [showModal, setShowModal] = useState(false);
+  const [allMetrics, setAllMetrics] = useState<any>();
   const [opened, { open, close }] = useDisclosure(false);
+  const theme = useMantineTheme();
 
   const token = sessionStorage.getItem("token");
   const mediaQuery = useMediaQuery("(max-width: 80em) and (min-width: 48em)");
@@ -69,9 +68,7 @@ function Dashboard() {
         `${import.meta.env.VITE_API_URL}/metrics?token=${token}&client_id=${selectedClientId}`
       );
 
-      if (response.status !== 200) {
-        return (window.location.href = "/register?error=unauthorized");
-      }
+      if (response.status !== 200) return (window.location.href = "/register?error=unauthorized");
 
       const data = await response.json();
       setMetrics(data);
@@ -80,8 +77,6 @@ function Dashboard() {
     fetchData();
     setFetchingMetrics(false);
   }, [refetch]);
-
-
 
   useEffect(() => {
     async function fetchData() {
@@ -93,8 +88,6 @@ function Dashboard() {
 
       const data = await response.json();
       setGroups(data.groups);
-      setShowModal(!showModal);
-      setAllMetrics(data);
     }
     fetchData();
     setRefetchGroups(false);
@@ -283,12 +276,22 @@ function Dashboard() {
     ];
   });
 
+  async function fetchAllMetrics() {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/metrics/export?client_id=${
+        import.meta.env.VITE_CLIENT_ID
+      }&token=${token}`
+    );
+    const data = await response.json();
+    setShowModal(!showModal);
+    setAllMetrics(data);
+  }
+
   return (
     <>
       <CustomAppShell selected={1}>
-
         <div>
-          <button onClick={fetchAllMetrics}>Export CSV</button>
+          <button onClick={() => fetchAllMetrics()}>Export CSV</button>
           <Modal
             opened={showModal}
             onClose={() => {
@@ -296,12 +299,11 @@ function Dashboard() {
             }}
             title="Download Link"
           >
-            <CSVLink data={allMetrics} style={{ color: theme.colors.blue[5], fontSize: 24 }}>
+            <CSVLink data={allMetrics || []} style={{ color: theme.colors.blue[5], fontSize: 24 }}>
               Download me
             </CSVLink>
           </Modal>
         </div>
-
         <Title>Client: {metrics?.static.host_name}</Title>
         <Group
           style={{
@@ -336,7 +338,6 @@ function Dashboard() {
                         <List.Item>
                           <Button
                             onClick={() => {
-                              console.log(client.clientID);
                               setSelectedClientId(client.clientID);
                             }}
                           >
@@ -353,91 +354,97 @@ function Dashboard() {
         </Drawer>
 
         <StatsRing data={statsRingData} />
-        <Title>Swap metrics</Title>
-        <SimpleGrid mt={20} mb={20} cols={maxCols} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-          <LineGraph
-            title={"Gpu usage %"}
-            metrics={gpuLoadMetrics}
-            maxY={1}
-            amberAnnotationOptions={{
-              display: true,
-              yMin: 0.6,
-              yMax: 0.8,
-            }}
-            redAnnotationOptions={{
-              display: true,
-              yMin: 0.8,
-              yMax: 1,
-            }}
-          />
-          <LineGraph title={"Gpu memory (MB)"} metrics={gpuMemoryMetrics} />
-          <LineGraph
-            title={"Gpu temperature"}
-            metrics={gpuTemperatureMetrics}
-            amberAnnotationOptions={{
-              display: true,
-              yMin: 80,
-              yMax: 70,
-            }}
-            redAnnotationOptions={{
-              display: true,
-              yMin: 80,
-              yMax: 100,
-            }}
-          />
-        </SimpleGrid>
-        <Title>Storage metrics</Title>
-        <SimpleGrid mt={20} mb={20} cols={maxCols} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-          <LineGraph title={"Total bytes sent (GB)"} metrics={totalBytesSentMetrics} />
-          <LineGraph title={"Total bytes recieved (GB)"} metrics={totalBytesRecievedMetrics} />
-          <LineGraph title={"Total bytes read (GB)"} metrics={totalBytesReadMetrics} />
-          <LineGraph title={"Total bytes written (GB)"} metrics={totalBytesWrittenMetrics} />
-          <LineGraph title={"Storage usage (GB)"} metrics={partitionMetrics} />
-        </SimpleGrid>
-        <Title>Memory metrics</Title>
-        <SimpleGrid mt={20} mb={20} cols={maxCols} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-          <LineGraph title={"Total swap"} metrics={totalSwapMetrics} />
-          <LineGraph title={"Used swap"} metrics={usedSwapMetrics} />
-          <LineGraph title={"Free swap"} metrics={freeSwapMetrics} />
-          <LineGraph title={"Used ram"} metrics={usedRamMetrics} />
-          <LineGraph
-            title={"Used ram %"}
-            amberAnnotationOptions={{
-              display: true,
-              yMin: 80,
-              yMax: 70,
-            }}
-            redAnnotationOptions={{
-              display: true,
-              yMin: 80,
-              yMax: 100,
-            }}
-            metrics={ramUsagePercentageMetrics}
-          />
-        </SimpleGrid>
-        <Title>Cpu metrics</Title>
-        <SimpleGrid mt={20} mb={20} cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-          <LineGraph title={"Cpu core usage"} metrics={cpuCoreUtilizationMetrics} maxY={100} />
-          <LineGraph
-            title={"Cpu usage"}
-            metrics={cpuUsagePercentageMetrics}
-            maxY={100}
-            amberAnnotationOptions={{
-              display: true,
-              yMin: 80,
-              yMax: 70,
-            }}
-            redAnnotationOptions={{
-              display: true,
-              yMin: 80,
-              yMax: 100,
-            }}
-            topRightLabel={[
-              `Logical cores: ${metrics?.static.logical_cores}`,
-              `Physical cores: ${metrics?.static.physical_cores}`,
-            ]}
-          />
-        </SimpleGrid>
+        {!metrics?.dynamic || !metrics?.dynamic.length ? (
+          <Title>This client has no metrics yet!</Title>
+        ) : (
+          <>
+            <Title>Swap metrics</Title>
+            <SimpleGrid mt={20} mb={20} cols={maxCols} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+              <LineGraph
+                title={"Gpu usage %"}
+                metrics={gpuLoadMetrics}
+                maxY={1}
+                amberAnnotationOptions={{
+                  display: true,
+                  yMin: 0.6,
+                  yMax: 0.8,
+                }}
+                redAnnotationOptions={{
+                  display: true,
+                  yMin: 0.8,
+                  yMax: 1,
+                }}
+              />
+              <LineGraph title={"Gpu memory (MB)"} metrics={gpuMemoryMetrics} />
+              <LineGraph
+                title={"Gpu temperature"}
+                metrics={gpuTemperatureMetrics}
+                amberAnnotationOptions={{
+                  display: true,
+                  yMin: 80,
+                  yMax: 70,
+                }}
+                redAnnotationOptions={{
+                  display: true,
+                  yMin: 80,
+                  yMax: 100,
+                }}
+              />
+            </SimpleGrid>
+            <Title>Storage metrics</Title>
+            <SimpleGrid mt={20} mb={20} cols={maxCols} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+              <LineGraph title={"Total bytes sent (GB)"} metrics={totalBytesSentMetrics} />
+              <LineGraph title={"Total bytes recieved (GB)"} metrics={totalBytesRecievedMetrics} />
+              <LineGraph title={"Total bytes read (GB)"} metrics={totalBytesReadMetrics} />
+              <LineGraph title={"Total bytes written (GB)"} metrics={totalBytesWrittenMetrics} />
+              <LineGraph title={"Storage usage (GB)"} metrics={partitionMetrics} />
+            </SimpleGrid>
+            <Title>Memory metrics</Title>
+            <SimpleGrid mt={20} mb={20} cols={maxCols} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+              <LineGraph title={"Total swap"} metrics={totalSwapMetrics} />
+              <LineGraph title={"Used swap"} metrics={usedSwapMetrics} />
+              <LineGraph title={"Free swap"} metrics={freeSwapMetrics} />
+              <LineGraph title={"Used ram"} metrics={usedRamMetrics} />
+              <LineGraph
+                title={"Used ram %"}
+                amberAnnotationOptions={{
+                  display: true,
+                  yMin: 80,
+                  yMax: 70,
+                }}
+                redAnnotationOptions={{
+                  display: true,
+                  yMin: 80,
+                  yMax: 100,
+                }}
+                metrics={ramUsagePercentageMetrics}
+              />
+            </SimpleGrid>
+            <Title>Cpu metrics</Title>
+            <SimpleGrid mt={20} mb={20} cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+              <LineGraph title={"Cpu core usage"} metrics={cpuCoreUtilizationMetrics} maxY={100} />
+              <LineGraph
+                title={"Cpu usage"}
+                metrics={cpuUsagePercentageMetrics}
+                maxY={100}
+                amberAnnotationOptions={{
+                  display: true,
+                  yMin: 80,
+                  yMax: 70,
+                }}
+                redAnnotationOptions={{
+                  display: true,
+                  yMin: 80,
+                  yMax: 100,
+                }}
+                topRightLabel={[
+                  `Logical cores: ${metrics?.static.logical_cores}`,
+                  `Physical cores: ${metrics?.static.physical_cores}`,
+                ]}
+              />
+            </SimpleGrid>
+          </>
+        )}
       </CustomAppShell>
     </>
   );
