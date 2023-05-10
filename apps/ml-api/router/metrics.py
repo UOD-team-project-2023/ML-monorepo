@@ -65,8 +65,13 @@ async def metrics(client_id: str, token: str):
     
     export_rows = []
     export_rows.append(','.join(export_data))  # Add the header row
-    
+
     for x in dynamic_metrics: 
+        core_utilization = str(x.core_utilization)
+        core_utilization = ' | '.join(str(core).replace("'", "").replace(",", "").replace("{", "").replace("}", "") for core in x.core_utilization)
+        
+        print(core_utilization)
+        
         row_values = [
             str(x.id),
             str(x.clientID),
@@ -74,7 +79,7 @@ async def metrics(client_id: str, token: str):
             str(x.boot_time),
             str(x.current_frequency),
             str(x.total_cpu_usage),
-            str(x.core_utilization),
+            core_utilization,
             str(x.total_ram_usage),
             str(x.available_ram),
             str(x.used_ram),
