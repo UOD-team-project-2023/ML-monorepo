@@ -168,11 +168,9 @@ export function LineGraph({
 
   if (!check) return <></>;
 
-  // get each drive so i can make a line/dataset for each one
   if (!metrics) return <h1>No metrics exist for this graph</h1>;
   const datasetNames = metrics[0]?.map((metric: any) => metric.label);
 
-  // get the data for each drive
   const datasets = datasetNames?.map((datasetName: string, index: number) => {
     const data = metrics.map((metric: any) => {
       const partition = metric.find((m: any) => m.label === datasetName);
