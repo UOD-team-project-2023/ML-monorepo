@@ -15,7 +15,6 @@ export interface NavBarLinks {
 const data: NavBarLinks[] = [
   { link: "", label: "Public", icon: null },
   { link: "/dashboard", label: "Dashboard", icon: Dashboard },
-  { link: "/alerts", label: "Alerts", icon: AlertCircle },
   { link: "", label: "Admin", icon: null },
   { link: "/groups", label: "Client groups", icon: Man },
   { link: "/accounts", label: "Accounts", icon: Users },
