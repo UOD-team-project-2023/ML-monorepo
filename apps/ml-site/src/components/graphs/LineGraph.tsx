@@ -15,7 +15,7 @@ import {
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-moment";
 import { Paper, useMantineTheme, Title, Button, Center, Box } from "@mantine/core";
-import { Metric } from "../../types/metric";
+import { DynamicMetric, Metrics } from "../../types/metric";
 import { getGraphColor } from "../../utils/getGraphColor";
 import Zoom from "chartjs-plugin-zoom";
 import { useRef } from "react";
@@ -151,12 +151,12 @@ export function LineGraph({
   const theme = useMantineTheme();
   let check = true;
 
-  const sortedMetrics = metrics.map((metric: Metric[]) =>
+  const sortedMetrics = metrics?.map((metric: DynamicMetric[]) =>
     metric.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
   );
 
-  const labels = sortedMetrics.map((metric: Metric[]) => {
-    if (!metric || !metric.length) {
+  const labels = sortedMetrics?.map((metric: DynamicMetric[]) => {
+    if (!metric || !metric) {
       check = false;
       return check;
     }
@@ -166,15 +166,14 @@ export function LineGraph({
     return formattedDate;
   });
 
-  if (!check) {
-    return <></>;
-  }
+  if (!check) return <></>;
 
   // get each drive so i can make a line/dataset for each one
-  const datasetNames = metrics[0].map((metric: any) => metric.label);
+  if (!metrics) return <h1>No metrics exist for this graph</h1>;
+  const datasetNames = metrics[0]?.map((metric: any) => metric.label);
 
   // get the data for each drive
-  const datasets = datasetNames.map((datasetName: string, index: number) => {
+  const datasets = datasetNames?.map((datasetName: string, index: number) => {
     const data = metrics.map((metric: any) => {
       const partition = metric.find((m: any) => m.label === datasetName);
       return partition.graphPlot;

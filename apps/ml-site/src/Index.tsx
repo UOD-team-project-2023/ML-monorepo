@@ -7,19 +7,17 @@ import { Notifications } from "@mantine/notifications";
 import { ModalsProvider } from "@mantine/modals";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <MantineProvider
-      withCSSVariables
-      withGlobalStyles
-      withNormalizeCSS
-      theme={{
-        colorScheme: "dark",
-      }}
-    >
-      <Notifications />
-      <ModalsProvider>
-        <App />
-      </ModalsProvider>
-    </MantineProvider>
-  </React.StrictMode>
+  <MantineProvider
+    withCSSVariables
+    withGlobalStyles
+    withNormalizeCSS
+    theme={{
+      colorScheme: "dark",
+    }}
+  >
+    <Notifications />
+    <ModalsProvider>
+      <App />
+    </ModalsProvider>
+  </MantineProvider>
 );
