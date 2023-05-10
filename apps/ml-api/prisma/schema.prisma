@@ -9,10 +9,10 @@ datasource db {
 }
 
 model Group {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
   description String
-  client      Clients?
+  client      Clients[]
 }
 
 model Clients {

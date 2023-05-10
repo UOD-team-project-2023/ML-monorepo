@@ -1,22 +1,9 @@
-import {
-  Box,
-  Button,
-  Modal,
-  SimpleGrid,
-  Table,
-  TextInput,
-  Title,
-  Text,
-  useMantineTheme,
-  Flex,
-} from "@mantine/core";
+import { Button, Modal, SimpleGrid, TextInput, Title, useMantineTheme } from "@mantine/core";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { Loading } from "../../components/loading/Loading";
-import { DragDrop } from "tabler-icons-react";
-import { useListState } from "@mantine/hooks";
 
 function ClientGroups() {
   const [createGroupModalOpened, setCreateGroupModalOpened] = useState(false);
@@ -94,10 +81,39 @@ function ClientGroups() {
 
   if (!groups || !clients) return <Loading />;
 
-  const handleDragEnd = ({ destination, source }) => {
-    if (!destination) {
+  const saveGroups = async (deepClone: any) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/groups/save`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        groups: deepClone,
+      }),
+    });
+
+    console.log(deepClone);
+
+    const data = await response.json();
+
+    if (response.status !== 200) {
+      notifications.show({
+        title: "Error",
+        message: typeof data.detail === "string" ? data.detail : "Something went wrong",
+        color: "red",
+      });
       return;
     }
+
+    notifications.show({
+      title: "Success!",
+      message: "Groups saved",
+      color: "green",
+    });
+  };
+
+  const handleDragEnd = async ({ destination, source }: any) => {
+    if (!destination) return;
 
     const deepClone = JSON.parse(JSON.stringify(groups));
 
@@ -106,6 +122,8 @@ function ClientGroups() {
       0,
       deepClone[source.droppableId].clients.splice(source.index, 1)[0]
     );
+
+    await saveGroups(deepClone);
 
     setGroups(deepClone);
   };
