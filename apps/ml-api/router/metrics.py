@@ -75,9 +75,6 @@ async def metrics(client_id: str, token: str):
         partitions = ' | '.join(str(partition).replace("'", "").replace(",", "").replace("{", "").replace("}", "") for partition in x.partitions)
         adapters = ' | '.join(str(adapter).replace("'", "").replace(",", "").replace("{", "").replace("}", "") for adapter in x.adapter_information)
         dns_records = ' | '.join(str(dns).replace("'", "").replace(",", "").replace("{", "").replace("}", "") for dns in x.dns)
-
-        
-        print(core_utilization)
         
         row_values = [
             str(x.id),
