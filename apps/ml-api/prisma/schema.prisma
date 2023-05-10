@@ -23,7 +23,7 @@ model Clients {
   StaticMetric  StaticMetric[]
   DynamicMetric DynamicMetric[]
   Group         Group?          @relation(fields: [groupId], references: [id])
-  groupId       Int?            @unique // Add a unique constraint here
+  groupId       Int?            @unique
 }
 
 model StaticMetric {

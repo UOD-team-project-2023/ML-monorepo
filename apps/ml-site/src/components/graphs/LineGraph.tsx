@@ -15,7 +15,7 @@ import {
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-moment";
 import { Paper, useMantineTheme, Title, Button, Center, Box } from "@mantine/core";
-import { Metric } from "../../types/metric";
+import { DynamicMetric, Metrics } from "../../types/metric";
 import { getGraphColor } from "../../utils/getGraphColor";
 import Zoom from "chartjs-plugin-zoom";
 import { useRef } from "react";
@@ -151,12 +151,12 @@ export function LineGraph({
   const theme = useMantineTheme();
   let check = true;
 
-  const sortedMetrics = metrics.map((metric: Metric[]) =>
+  const sortedMetrics = metrics.map((metric: DynamicMetric[]) =>
     metric.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
   );
 
-  const labels = sortedMetrics.map((metric: Metric[]) => {
-    if (!metric || !metric.length) {
+  const labels = sortedMetrics.map((metric: DynamicMetric[]) => {
+    if (!metric || !metric) {
       check = false;
       return check;
     }

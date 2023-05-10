@@ -33,7 +33,10 @@ async def create_group(request: GroupCreateRequest):
 @router.get("/groups", tags=["groups"])
 async def get_groups():
     groups = await prisma.group.find_many()
-    clients = await prisma.clients.find_many()
+    clients = await prisma.clients.find_many(include={
+        "StaticMetric": True,
+    })
+
     formatted_groups = [{
         "id": 0,
         "name": "Uncategorized",
@@ -49,13 +52,28 @@ async def get_groups():
         }
         for client in clients:
             if client.groupId == group.id:
-                formatted_group["clients"].append(client)
+                client_data = {
+                    "id": client.id,
+                    "clientID": client.clientID,
+                    "createdAt": client.createdAt,
+                    "updatedAt": client.updatedAt,
+                    "host_name": client.StaticMetric[len(client.StaticMetric) - 1].host_name,
+                }
+
+                formatted_group["clients"].append(client_data)
         formatted_groups.append(formatted_group)
 
     groupless_clients = []
     for client in clients:
         if not client.groupId:
-            groupless_clients.append(client)
+            client_data = {
+                "id": client.id,
+                "clientID": client.clientID,
+                "createdAt": client.createdAt,
+                "updatedAt": client.updatedAt,
+                "host_name": client.StaticMetric[len(client.StaticMetric) - 1].host_name,
+            }
+            groupless_clients.append(client_data)
     formatted_groups[0]["clients"] = groupless_clients
 
     return {"groups": formatted_groups}

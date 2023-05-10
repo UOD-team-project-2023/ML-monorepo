@@ -6,21 +6,41 @@ import {
   SimpleGrid,
   useMantineTheme,
   Title,
+  Drawer,
+  Button,
+  ScrollArea,
+  List,
+  Flex,
+  rem,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { LineGraph } from "../../components/graphs/LineGraph";
-import { CoreUtilization, GpuUsage, Metric, Partition } from "../../types/metric";
+import { CoreUtilization, DynamicMetric, GpuUsage, Metrics, Partition } from "../../types/metric";
 import { calculateStatsRingColor } from "../../utils/calculateStatsRingColor";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { Loading } from "../../components/loading/Loading";
-import { useMediaQuery } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 
 function Dashboard() {
-  const [metrics, setMetrics] = useState<Metric[]>([]);
+  const [metrics, setMetrics] = useState<Metrics | undefined>(undefined);
   const [refetch, setRefetch] = useState(false);
   const [fetchingMetrics, setFetchingMetrics] = useState(false);
   const [maxCols, setMaxCols] = useState(3);
-  const newestMetric = metrics[metrics.length - 1];
+  const [refetchGroups, setRefetchGroups] = useState(false);
+  const [groups, setGroups] = useState<any[]>([]);
+  const [selectedClientId, setSelectedClientId] = useState("");
+
+  useEffect(() => {
+    setRefetch(!refetch);
+    notifications.show({
+      title: "Metrics updated",
+      message: "Metrics have been updated",
+      color: "green",
+    });
+  }, [selectedClientId]);
+
+  const [opened, { open, close }] = useDisclosure(false);
 
   const token = sessionStorage.getItem("token");
 
@@ -41,29 +61,45 @@ function Dashboard() {
     async function fetchData() {
       setFetchingMetrics(true);
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/metrics?client_id=${
-          import.meta.env.VITE_CLIENT_ID
-        }&token=${token}`
+        `${import.meta.env.VITE_API_URL}/metrics?token=${token}&client_id=${selectedClientId}`
       );
+
+      if (response.status !== 200) {
+        return (window.location.href = "/register?error=unauthorized");
+      }
+
+      const data = await response.json();
+      setMetrics(data);
+      setSelectedClientId(data[data.length - 1].clientID);
+    }
+    fetchData();
+    setFetchingMetrics(false);
+  }, [refetch]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/groups`);
 
       if (response.status !== 200) {
         window.location.href = "/register?error=unauthorized";
       }
 
       const data = await response.json();
-      setMetrics(data);
+      setGroups(data.groups);
     }
     fetchData();
-    setFetchingMetrics(false);
-  }, [refetch]);
+    setRefetchGroups(false);
+  }, [refetchGroups]);
 
   if (fetchingMetrics) return <Loading />;
-  if (!metrics.length)
+  if (!metrics)
     return (
       <CustomAppShell selected={1}>
         <Loading />
       </CustomAppShell>
     );
+
+  const newestMetric = metrics.dynamic[metrics.dynamic.length - 1];
 
   const totalCpuUsage =
     newestMetric.core_utilization.reduce((acc: any, curr: any) => {
@@ -99,13 +135,13 @@ function Dashboard() {
     },
   ];
 
-  const gpuLoadMetrics = metrics.map((metric: Metric) => {
+  const gpuLoadMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
     return metric.gpu_usage.map((gpu: GpuUsage) => {
       return { ...gpu, createdAt: metric.createdAt, graphPlot: gpu.gpu_load, label: gpu.gpu_id };
     });
   });
 
-  const gpuTemperatureMetrics = metrics.map((metric: Metric) => {
+  const gpuTemperatureMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
     return metric.gpu_usage.map((gpu: GpuUsage) => {
       return {
         ...gpu,
@@ -116,7 +152,7 @@ function Dashboard() {
     });
   });
 
-  const cpuCoreUtilizationMetrics = metrics.map((metric: Metric) => {
+  const cpuCoreUtilizationMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
     return metric.core_utilization.map((cpu: CoreUtilization) => {
       return {
         ...cpu,
@@ -127,7 +163,7 @@ function Dashboard() {
     });
   });
 
-  const gpuMemoryMetrics = metrics.map((metric: Metric) => {
+  const gpuMemoryMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
     return metric.gpu_usage.map((gpu: GpuUsage) => {
       return {
         ...gpu,
@@ -138,7 +174,7 @@ function Dashboard() {
     });
   });
 
-  const partitionMetrics = metrics.map((metric: Metric) =>
+  const partitionMetrics = metrics.dynamic.map((metric: DynamicMetric) =>
     metric.partitions.map((partition: Partition) => {
       partition["createdAt"] = metric.createdAt;
       partition["graphPlot"] = partition.used / 1000000000;
@@ -147,7 +183,7 @@ function Dashboard() {
     })
   );
 
-  const freeSwapMetrics = metrics.map((metric: Metric) => {
+  const freeSwapMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -156,7 +192,7 @@ function Dashboard() {
       },
     ];
   });
-  const totalSwapMetrics = metrics.map((metric: Metric) => {
+  const totalSwapMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -165,7 +201,7 @@ function Dashboard() {
       },
     ];
   });
-  const usedSwapMetrics = metrics.map((metric: Metric) => {
+  const usedSwapMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -175,7 +211,7 @@ function Dashboard() {
     ];
   });
 
-  const totalBytesSentMetrics = metrics.map((metric: Metric) => {
+  const totalBytesSentMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -184,7 +220,7 @@ function Dashboard() {
       },
     ];
   });
-  const totalBytesRecievedMetrics = metrics.map((metric: Metric) => {
+  const totalBytesRecievedMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -193,7 +229,7 @@ function Dashboard() {
       },
     ];
   });
-  const totalBytesReadMetrics = metrics.map((metric: Metric) => {
+  const totalBytesReadMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -202,7 +238,7 @@ function Dashboard() {
       },
     ];
   });
-  const totalBytesWrittenMetrics = metrics.map((metric: Metric) => {
+  const totalBytesWrittenMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -212,7 +248,7 @@ function Dashboard() {
     ];
   });
 
-  const usedRamMetrics = metrics.map((metric: Metric) => {
+  const usedRamMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -221,7 +257,7 @@ function Dashboard() {
       },
     ];
   });
-  const ramUsagePercentageMetrics = metrics.map((metric: Metric) => {
+  const ramUsagePercentageMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -230,7 +266,7 @@ function Dashboard() {
       },
     ];
   });
-  const cpuUsagePercentageMetrics = metrics.map((metric: Metric) => {
+  const cpuUsagePercentageMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -243,8 +279,55 @@ function Dashboard() {
   return (
     <>
       <CustomAppShell selected={1}>
-        <StatsRing data={statsRingData} />
+        <Title>{metrics.static.host_name}</Title>
+        <Group
+          style={{
+            position: "fixed",
+            right: 17,
+            top: 10,
+            zIndex: 20000,
+          }}
+        >
+          <Button color={!opened ? "blue" : "red"} onClick={!opened ? open : close}>
+            {opened ? "Close client list" : "Open clients list"}
+          </Button>
+        </Group>
+        <Drawer
+          size={rem(700)}
+          title={"Clients list"}
+          position="right"
+          opened={opened}
+          onClose={close}
+          scrollAreaComponent={ScrollArea.Autosize}
+        >
+          {groups.map((group: any) => {
+            return (
+              <List listStyleType="disc">
+                <List.Item>
+                  <Title>{group.name}</Title>
+                </List.Item>
+                <Flex direction={"column"} gap={7}>
+                  {group.clients.map((client: any) => {
+                    return (
+                      <List withPadding>
+                        <List.Item>
+                          <Button onClick={() => setSelectedClientId(client.clientID)}>
+                            {client.host_name}
+                          </Button>
+                        </List.Item>
+                      </List>
+                    );
+                  })}
+                </Flex>
+              </List>
+            );
+          })}
 
+          <Button component={"a"} href="/groups" mt={"100%"}>
+            Group clients
+          </Button>
+        </Drawer>
+        <StatsRing data={statsRingData} />
         <Title>Swap metrics</Title>
         <SimpleGrid mt={20} mb={20} cols={maxCols} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
           <LineGraph

@@ -37,7 +37,34 @@ export interface Partition {
   graphPlot?: number;
   label?: string;
 }
-export interface Metric {
+export interface Metrics {
+  dynamic: DynamicMetric[];
+  static: StaticMetric;
+}
+
+export interface StaticMetric {
+  client: null;
+  clientID: string;
+  cpu_family: string;
+  cpu_type: string;
+  createdAt: Date;
+  gpus: {
+    gpu_name: string;
+    gpu_uuid: string;
+  };
+  host_name: string;
+  id: number;
+  logical_cores: number;
+  max_frequency: number;
+  min_frequency: number;
+  physical_cores: number;
+  release: string;
+  system: string;
+  total_ram: number;
+  version: string;
+}
+
+export interface DynamicMetric {
   adapter_information: AdapterInformation[];
   available_ram: number;
   boot_time: string; // date string

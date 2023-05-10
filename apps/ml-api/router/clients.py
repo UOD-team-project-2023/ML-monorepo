@@ -11,7 +11,7 @@ async def create_client(request: Request):
     if request.headers.get("PSK") != os.environ.get("PSK"):
         raise HTTPException(status_code=401, detail=f"unauthorized")
 
-    client_id = await prisma.dynamicmetric.find_first(where={
+    client_id = await prisma.clients.find_first(where={
         "clientID": request.headers["client-id"],
     })
 
@@ -21,6 +21,5 @@ async def create_client(request: Request):
 
 @router.get("/clients", tags=["clients"])
 async def get_clients():
-    # TODO: Auth check
     clients = await prisma.clients.find_many()
     return {"clients": clients}

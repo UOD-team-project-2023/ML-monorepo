@@ -92,8 +92,6 @@ function ClientGroups() {
       }),
     });
 
-    console.log(deepClone);
-
     const data = await response.json();
 
     if (response.status !== 200) {
@@ -155,7 +153,7 @@ function ClientGroups() {
         <Button onClick={() => setCreateGroupModalOpened(!createGroupModalOpened)}>
           Create a group
         </Button>
-        <SimpleGrid mt={20} mb={20} cols={4} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+        <SimpleGrid mt={20} mb={20} cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
           <DragDropContext onDragEnd={handleDragEnd}>
             {groups.map((group, ind) => {
               return (
@@ -170,7 +168,7 @@ function ClientGroups() {
                         margin: theme.spacing.md,
                         borderRadius: theme.radius.sm,
                         backgroundColor: theme.colors.dark[9],
-                        width: "300px",
+                        width: "100%",
                       }}
                     >
                       {group.name}
@@ -199,7 +197,7 @@ function ClientGroups() {
                                   backgroundColor: theme.colors.dark[6],
                                 }}
                               >
-                                <Title>client: {client.id}</Title>
+                                <Title>client: {client.host_name}</Title>
                               </div>
                             </div>
                           )}
