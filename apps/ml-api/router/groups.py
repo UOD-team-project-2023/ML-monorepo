@@ -3,6 +3,7 @@ from typing import List, Optional
 from db import prisma
 from fastapi import APIRouter
 from pydantic import BaseModel
+from helpers.get_client_host_name import get_client_host_name
 
 router = APIRouter()
 
@@ -57,7 +58,7 @@ async def get_groups():
                     "clientID": client.clientID,
                     "createdAt": client.createdAt,
                     "updatedAt": client.updatedAt,
-                    "host_name": client.StaticMetric[len(client.StaticMetric) - 1].host_name,
+                    "host_name": get_client_host_name(client),
                 }
 
                 formatted_group["clients"].append(client_data)
@@ -71,7 +72,7 @@ async def get_groups():
                 "clientID": client.clientID,
                 "createdAt": client.createdAt,
                 "updatedAt": client.updatedAt,
-                "host_name": client.StaticMetric[len(client.StaticMetric) - 1].host_name,
+                "host_name": get_client_host_name(client),
             }
             groupless_clients.append(client_data)
     formatted_groups[0]["clients"] = groupless_clients

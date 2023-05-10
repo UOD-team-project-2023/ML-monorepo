@@ -30,6 +30,7 @@ function Dashboard() {
   const [refetchGroups, setRefetchGroups] = useState(false);
   const [groups, setGroups] = useState<any[]>([]);
   const [selectedClientId, setSelectedClientId] = useState("");
+  const [newestMetric, setNewestMetric] = useState<any>();
 
   useEffect(() => {
     setRefetch(!refetch);
@@ -70,7 +71,7 @@ function Dashboard() {
 
       const data = await response.json();
       setMetrics(data);
-      setSelectedClientId(data[data.length - 1].clientID);
+      setNewestMetric(data.dynamic[data.dynamic.length - 1]);
     }
     fetchData();
     setFetchingMetrics(false);
@@ -92,27 +93,25 @@ function Dashboard() {
   }, [refetchGroups]);
 
   if (fetchingMetrics) return <Loading />;
-  if (!metrics)
-    return (
-      <CustomAppShell selected={1}>
-        <Loading />
-      </CustomAppShell>
-    );
-
-  const newestMetric = metrics.dynamic[metrics.dynamic.length - 1];
 
   const totalCpuUsage =
-    newestMetric.core_utilization.reduce((acc: any, curr: any) => {
-      return acc + curr.utilization;
-    }, 0) / newestMetric.core_utilization.length;
+    newestMetric?.core_utilization && newestMetric.core_utilization.length > 0
+      ? newestMetric.core_utilization.reduce((acc: any, curr: any) => {
+          return acc + curr.utilization;
+        }, 0) / newestMetric.core_utilization.length
+      : 0;
 
-  const totalDiskUsage = newestMetric?.partitions.reduce((acc, cur: Partition) => {
-    return acc + cur.used;
-  }, 0);
+  const totalDiskUsage = newestMetric?.partitions
+    ? newestMetric.partitions.reduce((acc: number, cur: Partition) => {
+        return acc + cur.used;
+      }, 0)
+    : 0;
 
-  const totalDiskFree = newestMetric?.partitions.reduce((acc, cur: Partition) => {
-    return acc + cur.free;
-  }, 0);
+  const totalDiskFree = newestMetric?.partitions
+    ? newestMetric.partitions.reduce((acc: number, cur: Partition) => {
+        return acc + cur.free;
+      }, 0)
+    : 0;
 
   const statsRingData = [
     {
@@ -123,9 +122,9 @@ function Dashboard() {
     },
     {
       label: "RAM usage",
-      stats: `${(newestMetric.used_ram / 1000000000).toFixed(2)} GB`,
-      progress: newestMetric.total_ram_usage,
-      color: calculateStatsRingColor(newestMetric.total_ram_usage),
+      stats: `${(newestMetric?.used_ram / 1000000000).toFixed(2)} GB`,
+      progress: newestMetric?.total_ram_usage,
+      color: calculateStatsRingColor(newestMetric?.total_ram_usage),
     },
     {
       label: "Overall Disk usage",
@@ -135,13 +134,13 @@ function Dashboard() {
     },
   ];
 
-  const gpuLoadMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
+  const gpuLoadMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return metric.gpu_usage.map((gpu: GpuUsage) => {
       return { ...gpu, createdAt: metric.createdAt, graphPlot: gpu.gpu_load, label: gpu.gpu_id };
     });
   });
 
-  const gpuTemperatureMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
+  const gpuTemperatureMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return metric.gpu_usage.map((gpu: GpuUsage) => {
       return {
         ...gpu,
@@ -152,7 +151,7 @@ function Dashboard() {
     });
   });
 
-  const cpuCoreUtilizationMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
+  const cpuCoreUtilizationMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return metric.core_utilization.map((cpu: CoreUtilization) => {
       return {
         ...cpu,
@@ -163,7 +162,7 @@ function Dashboard() {
     });
   });
 
-  const gpuMemoryMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
+  const gpuMemoryMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return metric.gpu_usage.map((gpu: GpuUsage) => {
       return {
         ...gpu,
@@ -174,7 +173,7 @@ function Dashboard() {
     });
   });
 
-  const partitionMetrics = metrics.dynamic.map((metric: DynamicMetric) =>
+  const partitionMetrics = metrics?.dynamic.map((metric: DynamicMetric) =>
     metric.partitions.map((partition: Partition) => {
       partition["createdAt"] = metric.createdAt;
       partition["graphPlot"] = partition.used / 1000000000;
@@ -183,7 +182,7 @@ function Dashboard() {
     })
   );
 
-  const freeSwapMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
+  const freeSwapMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -192,7 +191,7 @@ function Dashboard() {
       },
     ];
   });
-  const totalSwapMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
+  const totalSwapMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -201,7 +200,7 @@ function Dashboard() {
       },
     ];
   });
-  const usedSwapMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
+  const usedSwapMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -211,7 +210,7 @@ function Dashboard() {
     ];
   });
 
-  const totalBytesSentMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
+  const totalBytesSentMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -220,7 +219,7 @@ function Dashboard() {
       },
     ];
   });
-  const totalBytesRecievedMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
+  const totalBytesRecievedMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -229,7 +228,7 @@ function Dashboard() {
       },
     ];
   });
-  const totalBytesReadMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
+  const totalBytesReadMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -238,7 +237,7 @@ function Dashboard() {
       },
     ];
   });
-  const totalBytesWrittenMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
+  const totalBytesWrittenMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -248,7 +247,7 @@ function Dashboard() {
     ];
   });
 
-  const usedRamMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
+  const usedRamMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -257,7 +256,7 @@ function Dashboard() {
       },
     ];
   });
-  const ramUsagePercentageMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
+  const ramUsagePercentageMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -266,7 +265,7 @@ function Dashboard() {
       },
     ];
   });
-  const cpuUsagePercentageMetrics = metrics.dynamic.map((metric: DynamicMetric) => {
+  const cpuUsagePercentageMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -279,7 +278,9 @@ function Dashboard() {
   return (
     <>
       <CustomAppShell selected={1}>
-        <Title>{metrics.static.host_name}</Title>
+        <Title>
+          id: {metrics?.static.clientID} name:{metrics?.static.host_name}
+        </Title>
         <Group
           style={{
             position: "fixed",
@@ -288,6 +289,9 @@ function Dashboard() {
             zIndex: 20000,
           }}
         >
+          <Button component={"a"} href="/groups">
+            Group clients
+          </Button>
           <Button color={!opened ? "blue" : "red"} onClick={!opened ? open : close}>
             {opened ? "Close client list" : "Open clients list"}
           </Button>
@@ -311,7 +315,12 @@ function Dashboard() {
                     return (
                       <List withPadding>
                         <List.Item>
-                          <Button onClick={() => setSelectedClientId(client.clientID)}>
+                          <Button
+                            onClick={() => {
+                              console.log(client.clientID);
+                              setSelectedClientId(client.clientID);
+                            }}
+                          >
                             {client.host_name}
                           </Button>
                         </List.Item>
@@ -322,10 +331,6 @@ function Dashboard() {
               </List>
             );
           })}
-
-          <Button component={"a"} href="/groups" mt={"100%"}>
-            Group clients
-          </Button>
         </Drawer>
         <StatsRing data={statsRingData} />
         <Title>Swap metrics</Title>
@@ -418,7 +423,7 @@ interface StatsRingProps {
   data: {
     label: string;
     stats: string;
-    progress: number;
+    progress: number | undefined;
     color: string;
   }[];
 }
@@ -439,7 +444,7 @@ function StatsRing({ data }: StatsRingProps) {
             size={80}
             roundCaps
             thickness={8}
-            sections={[{ value: stat.progress, color: stat.color }]}
+            sections={[{ value: stat.progress || 0, color: stat.color }]}
           />
           <div>
             <Text color="dimmed" size="xs" transform="uppercase" weight={600}>
