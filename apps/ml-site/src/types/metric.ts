@@ -48,10 +48,11 @@ export interface StaticMetric {
   cpu_family: string;
   cpu_type: string;
   createdAt: Date;
+  cpu_name: string;
   gpus: {
     gpu_name: string;
     gpu_uuid: string;
-  };
+  }[];
   host_name: string;
   id: number;
   logical_cores: number;

@@ -149,7 +149,7 @@ function ClientGroups() {
           Create group
         </Button>
       </Modal>
-      <CustomAppShell selected={4}>
+      <CustomAppShell selected={3}>
         <Button onClick={() => setCreateGroupModalOpened(!createGroupModalOpened)}>
           Create a group
         </Button>

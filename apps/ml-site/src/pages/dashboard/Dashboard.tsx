@@ -12,6 +12,7 @@ import {
   List,
   Flex,
   rem,
+  Box,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { LineGraph } from "../../components/graphs/LineGraph";
@@ -31,6 +32,9 @@ function Dashboard() {
   const [groups, setGroups] = useState<any[]>([]);
   const [selectedClientId, setSelectedClientId] = useState("");
   const [newestMetric, setNewestMetric] = useState<any>();
+  const [opened, { open, close }] = useDisclosure(false);
+  const token = sessionStorage.getItem("token");
+  const mediaQuery = useMediaQuery("(max-width: 80em) and (min-width: 48em)");
 
   useEffect(() => {
     setRefetch(!refetch);
@@ -40,12 +44,6 @@ function Dashboard() {
       color: "green",
     });
   }, [selectedClientId]);
-
-  const [opened, { open, close }] = useDisclosure(false);
-
-  const token = sessionStorage.getItem("token");
-
-  const mediaQuery = useMediaQuery("(max-width: 80em) and (min-width: 48em)");
 
   useEffect(() => {
     if (mediaQuery) return setMaxCols(1);
@@ -278,9 +276,7 @@ function Dashboard() {
   return (
     <>
       <CustomAppShell selected={1}>
-        <Title>
-          id: {metrics?.static.clientID} name:{metrics?.static.host_name}
-        </Title>
+        <Title>Client: {metrics?.static.host_name}</Title>
         <Group
           style={{
             position: "fixed",
@@ -289,9 +285,6 @@ function Dashboard() {
             zIndex: 20000,
           }}
         >
-          <Button component={"a"} href="/groups">
-            Group clients
-          </Button>
           <Button color={!opened ? "blue" : "red"} onClick={!opened ? open : close}>
             {opened ? "Close client list" : "Open clients list"}
           </Button>
@@ -412,6 +405,10 @@ function Dashboard() {
               yMin: 80,
               yMax: 100,
             }}
+            topRightLabel={[
+              `Logical cores: ${metrics?.static.logical_cores}`,
+              `Physical cores: ${metrics?.static.physical_cores}`,
+            ]}
           />
         </SimpleGrid>
       </CustomAppShell>

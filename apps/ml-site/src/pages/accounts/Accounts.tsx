@@ -246,7 +246,7 @@ function Accounts() {
           Create account
         </Button>
       </Modal>
-      <CustomAppShell selected={5}>
+      <CustomAppShell selected={4}>
         <Flex justify={"space-between"}>
           <Title>Accounts</Title>
           <Button onClick={() => setCreateAccountModalOpened(!createAccountModalOpened)}>

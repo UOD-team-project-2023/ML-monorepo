@@ -14,8 +14,8 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-moment";
-import { Paper, useMantineTheme, Title, Button, Center, Box } from "@mantine/core";
-import { DynamicMetric, Metrics } from "../../types/metric";
+import { Paper, useMantineTheme, Title, Button, Center, Box, Flex } from "@mantine/core";
+import { DynamicMetric } from "../../types/metric";
 import { getGraphColor } from "../../utils/getGraphColor";
 import Zoom from "chartjs-plugin-zoom";
 import { useRef } from "react";
@@ -49,6 +49,7 @@ interface LineGraphProps {
   maxY?: number;
   amberAnnotationOptions?: CustomAnnotationOptions;
   redAnnotationOptions?: CustomAnnotationOptions;
+  topRightLabel?: string[];
 }
 
 export function LineGraph({
@@ -59,6 +60,7 @@ export function LineGraph({
   maxY,
   amberAnnotationOptions,
   redAnnotationOptions,
+  topRightLabel,
 }: LineGraphProps) {
   const options: ChartOptions<"line"> = {
     responsive: true,
@@ -210,14 +212,16 @@ export function LineGraph({
                 {title}
               </Title>
             </Center>
-            <Button
-              onClick={() => {
-                const chart = chartRef.current;
-                chart?.resetZoom();
-              }}
-            >
-              Reset zoom
-            </Button>
+            <Flex justify={"space-between"}>
+              <Button
+                onClick={() => {
+                  const chart = chartRef.current;
+                  chart?.resetZoom();
+                }}
+              >
+                Reset zoom
+              </Button>
+            </Flex>
             <Line ref={chartRef} data={data} options={options} />
           </>
         )}
