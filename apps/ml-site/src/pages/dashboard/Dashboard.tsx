@@ -6,7 +6,8 @@ import {
   SimpleGrid,
   useMantineTheme,
   Title,
-  Button,
+  Modal,
+  Center,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { LineGraph } from "../../components/graphs/LineGraph";
@@ -15,14 +16,16 @@ import { calculateStatsRingColor } from "../../utils/calculateStatsRingColor";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { Loading } from "../../components/loading/Loading";
 import { CSVLink } from "react-csv";
+import { relativeTimeRounding } from "moment";
 
 function Dashboard() {
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [allMetrics, setAllMetrics] = useState<Metric[]>([]);
+  const [showModal, setShowModal] = useState(false);
   const [refetch, setRefetch] = useState(false);
   const [fetchingMetrics, setFetchingMetrics] = useState(false);
   const newestMetric = metrics[metrics.length - 1];
-
+  const theme = useMantineTheme();
   const token = sessionStorage.getItem("token");
 
   useEffect(() => {
@@ -58,6 +61,7 @@ function Dashboard() {
       }&token=${token}`
     );
     const data = await response.json();
+    setShowModal(!showModal);
     setAllMetrics(data);
   }
 
@@ -247,15 +251,20 @@ function Dashboard() {
   return (
     <>
       <CustomAppShell selected={1}>
-        <Button
-          onClick={() => {
-            fetchAllMetrics();
-          }}
-        >
-          {" "}
-          Export: CSV
-        </Button>
-        <CSVLink data={allMetrics}>Download me</CSVLink>;
+        <div>
+          <button onClick={fetchAllMetrics}>Export CSV</button>
+          <Modal
+            opened={showModal}
+            title="Download Link"
+            onClose={function (): void {
+              throw new Error("Function not implemented.");
+            }}
+          >
+            <CSVLink data={allMetrics} style={{ color: theme.colors.blue[5], fontSize: 24 }}>
+              Download me
+            </CSVLink>
+          </Modal>
+        </div>
         <StatsRing data={statsRingData} />
         <Title>Swap metrics</Title>
         <SimpleGrid mt={20} mb={20} cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
