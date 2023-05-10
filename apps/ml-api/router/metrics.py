@@ -66,9 +66,16 @@ async def metrics(client_id: str, token: str):
     export_rows = []
     export_rows.append(','.join(export_data))  # Add the header row
 
+        
+
     for x in dynamic_metrics: 
-        core_utilization = str(x.core_utilization)
+        
+        
         core_utilization = ' | '.join(str(core).replace("'", "").replace(",", "").replace("{", "").replace("}", "") for core in x.core_utilization)
+        partitions = ' | '.join(str(partition).replace("'", "").replace(",", "").replace("{", "").replace("}", "") for partition in x.partitions)
+        adapters = ' | '.join(str(adapter).replace("'", "").replace(",", "").replace("{", "").replace("}", "") for adapter in x.adapter_information)
+        dns_records = ' | '.join(str(dns).replace("'", "").replace(",", "").replace("{", "").replace("}", "") for dns in x.dns)
+
         
         print(core_utilization)
         
@@ -93,9 +100,9 @@ async def metrics(client_id: str, token: str):
             str(x.total_bytes_read),
             str(x.total_bytes_written),
             str(x.gpu_usage),
-            str(x.partitions),
-            str(x.adapter_information),
-            str(x.dns)
+            partitions,
+            adapters,
+            dns_records
         ]
         export_rows.append(','.join(row_values))
 
