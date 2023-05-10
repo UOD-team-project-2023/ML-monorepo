@@ -4,7 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from helpers.try_int import try_int
-from router import create_client, users, test, static_data, dynamic_data, metrics, file_nix_probe_install_script, file_win_probe_install_script, file_probe_zip, validate_psk
+from router import clients, users, test, static_data, dynamic_data, metrics, file_nix_probe_install_script, file_win_probe_install_script, file_probe_zip, validate_psk, groups
 from db import prisma
 
 app = FastAPI()
@@ -13,11 +13,12 @@ app.include_router(test.router)
 app.include_router(static_data.router)
 app.include_router(dynamic_data.router)
 app.include_router(metrics.router)
-app.include_router(create_client.router)
+app.include_router(clients.router)
 app.include_router(file_nix_probe_install_script.router)
 app.include_router(file_win_probe_install_script.router)
 app.include_router(file_probe_zip.router)
 app.include_router(validate_psk.router)
+app.include_router(groups.router)
 
 
 origins = ["*"]

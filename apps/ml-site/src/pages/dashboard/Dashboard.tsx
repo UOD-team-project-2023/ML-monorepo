@@ -8,25 +8,53 @@ import {
   Title,
   Modal,
   Center,
+  Drawer,
+  Button,
+  ScrollArea,
+  List,
+  Flex,
+  rem,
+  Box,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { LineGraph } from "../../components/graphs/LineGraph";
-import { CoreUtilization, GpuUsage, Metric, Partition } from "../../types/metric";
+import { CoreUtilization, DynamicMetric, GpuUsage, Metrics, Partition } from "../../types/metric";
 import { calculateStatsRingColor } from "../../utils/calculateStatsRingColor";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { Loading } from "../../components/loading/Loading";
 import { CSVLink } from "react-csv";
 import { relativeTimeRounding } from "moment";
 
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
+
 function Dashboard() {
-  const [metrics, setMetrics] = useState<Metric[]>([]);
-  const [allMetrics, setAllMetrics] = useState<Metric[]>([]);
-  const [showModal, setShowModal] = useState(false);
+  const [metrics, setMetrics] = useState<Metrics | undefined>(undefined);
   const [refetch, setRefetch] = useState(false);
   const [fetchingMetrics, setFetchingMetrics] = useState(false);
-  const newestMetric = metrics[metrics.length - 1];
-  const theme = useMantineTheme();
+  const [maxCols, setMaxCols] = useState(3);
+  const [refetchGroups, setRefetchGroups] = useState(false);
+  const [groups, setGroups] = useState<any[]>([]);
+  const [selectedClientId, setSelectedClientId] = useState("");
+  const [newestMetric, setNewestMetric] = useState<any>();
+  const [opened, { open, close }] = useDisclosure(false);
+
   const token = sessionStorage.getItem("token");
+  const mediaQuery = useMediaQuery("(max-width: 80em) and (min-width: 48em)");
+
+  useEffect(() => {
+    setRefetch(!refetch);
+    notifications.show({
+      title: "Metrics updated",
+      message: "Metrics have been updated",
+      color: "green",
+    });
+  }, [selectedClientId]);
+
+  useEffect(() => {
+    if (mediaQuery) return setMaxCols(1);
+    setMaxCols(3);
+  }, [mediaQuery]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -38,53 +66,60 @@ function Dashboard() {
     async function fetchData() {
       setFetchingMetrics(true);
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/metrics?client_id=${
-          import.meta.env.VITE_CLIENT_ID
-        }&token=${token}`
+        `${import.meta.env.VITE_API_URL}/metrics?token=${token}&client_id=${selectedClientId}`
       );
+
+      if (response.status !== 200) {
+        return (window.location.href = "/register?error=unauthorized");
+      }
+
+      const data = await response.json();
+      setMetrics(data);
+      setNewestMetric(data.dynamic[data.dynamic.length - 1]);
+    }
+    fetchData();
+    setFetchingMetrics(false);
+  }, [refetch]);
+
+
+
+  useEffect(() => {
+    async function fetchData() {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/groups`);
 
       if (response.status !== 200) {
         window.location.href = "/register?error=unauthorized";
       }
 
       const data = await response.json();
-      setMetrics(data);
+      setGroups(data.groups);
+      setShowModal(!showModal);
+      setAllMetrics(data);
     }
     fetchData();
-    setFetchingMetrics(false);
-  }, [refetch]);
-
-  async function fetchAllMetrics() {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/metrics/export?client_id=${
-        import.meta.env.VITE_CLIENT_ID
-      }&token=${token}`
-    );
-    const data = await response.json();
-    setShowModal(!showModal);
-    setAllMetrics(data);
-  }
+    setRefetchGroups(false);
+  }, [refetchGroups]);
 
   if (fetchingMetrics) return <Loading />;
-  if (!metrics.length)
-    return (
-      <CustomAppShell selected={1}>
-        <Loading />
-      </CustomAppShell>
-    );
 
   const totalCpuUsage =
-    newestMetric.core_utilization.reduce((acc: any, curr: any) => {
-      return acc + curr.utilization;
-    }, 0) / newestMetric.core_utilization.length;
+    newestMetric?.core_utilization && newestMetric.core_utilization.length > 0
+      ? newestMetric.core_utilization.reduce((acc: any, curr: any) => {
+          return acc + curr.utilization;
+        }, 0) / newestMetric.core_utilization.length
+      : 0;
 
-  const totalDiskUsage = newestMetric?.partitions.reduce((acc, cur: Partition) => {
-    return acc + cur.used;
-  }, 0);
+  const totalDiskUsage = newestMetric?.partitions
+    ? newestMetric.partitions.reduce((acc: number, cur: Partition) => {
+        return acc + cur.used;
+      }, 0)
+    : 0;
 
-  const totalDiskFree = newestMetric?.partitions.reduce((acc, cur: Partition) => {
-    return acc + cur.free;
-  }, 0);
+  const totalDiskFree = newestMetric?.partitions
+    ? newestMetric.partitions.reduce((acc: number, cur: Partition) => {
+        return acc + cur.free;
+      }, 0)
+    : 0;
 
   const statsRingData = [
     {
@@ -95,9 +130,9 @@ function Dashboard() {
     },
     {
       label: "RAM usage",
-      stats: `${(newestMetric.used_ram / 1000000000).toFixed(2)} GB`,
-      progress: newestMetric.total_ram_usage,
-      color: calculateStatsRingColor(newestMetric.total_ram_usage),
+      stats: `${(newestMetric?.used_ram / 1000000000).toFixed(2)} GB`,
+      progress: newestMetric?.total_ram_usage,
+      color: calculateStatsRingColor(newestMetric?.total_ram_usage),
     },
     {
       label: "Overall Disk usage",
@@ -107,13 +142,13 @@ function Dashboard() {
     },
   ];
 
-  const gpuLoadMetrics = metrics.map((metric: Metric) => {
+  const gpuLoadMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return metric.gpu_usage.map((gpu: GpuUsage) => {
       return { ...gpu, createdAt: metric.createdAt, graphPlot: gpu.gpu_load, label: gpu.gpu_id };
     });
   });
 
-  const gpuTemperatureMetrics = metrics.map((metric: Metric) => {
+  const gpuTemperatureMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return metric.gpu_usage.map((gpu: GpuUsage) => {
       return {
         ...gpu,
@@ -124,7 +159,7 @@ function Dashboard() {
     });
   });
 
-  const cpuCoreUtilizationMetrics = metrics.map((metric: Metric) => {
+  const cpuCoreUtilizationMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return metric.core_utilization.map((cpu: CoreUtilization) => {
       return {
         ...cpu,
@@ -135,7 +170,7 @@ function Dashboard() {
     });
   });
 
-  const gpuMemoryMetrics = metrics.map((metric: Metric) => {
+  const gpuMemoryMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return metric.gpu_usage.map((gpu: GpuUsage) => {
       return {
         ...gpu,
@@ -146,7 +181,7 @@ function Dashboard() {
     });
   });
 
-  const partitionMetrics = metrics.map((metric: Metric) =>
+  const partitionMetrics = metrics?.dynamic.map((metric: DynamicMetric) =>
     metric.partitions.map((partition: Partition) => {
       partition["createdAt"] = metric.createdAt;
       partition["graphPlot"] = partition.used / 1000000000;
@@ -155,7 +190,7 @@ function Dashboard() {
     })
   );
 
-  const freeSwapMetrics = metrics.map((metric: Metric) => {
+  const freeSwapMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -164,7 +199,7 @@ function Dashboard() {
       },
     ];
   });
-  const totalSwapMetrics = metrics.map((metric: Metric) => {
+  const totalSwapMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -173,7 +208,7 @@ function Dashboard() {
       },
     ];
   });
-  const usedSwapMetrics = metrics.map((metric: Metric) => {
+  const usedSwapMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -183,7 +218,7 @@ function Dashboard() {
     ];
   });
 
-  const totalBytesSentMetrics = metrics.map((metric: Metric) => {
+  const totalBytesSentMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -192,7 +227,7 @@ function Dashboard() {
       },
     ];
   });
-  const totalBytesRecievedMetrics = metrics.map((metric: Metric) => {
+  const totalBytesRecievedMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -201,7 +236,7 @@ function Dashboard() {
       },
     ];
   });
-  const totalBytesReadMetrics = metrics.map((metric: Metric) => {
+  const totalBytesReadMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -210,7 +245,7 @@ function Dashboard() {
       },
     ];
   });
-  const totalBytesWrittenMetrics = metrics.map((metric: Metric) => {
+  const totalBytesWrittenMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -220,7 +255,7 @@ function Dashboard() {
     ];
   });
 
-  const usedRamMetrics = metrics.map((metric: Metric) => {
+  const usedRamMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -229,7 +264,7 @@ function Dashboard() {
       },
     ];
   });
-  const ramUsagePercentageMetrics = metrics.map((metric: Metric) => {
+  const ramUsagePercentageMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -238,7 +273,7 @@ function Dashboard() {
       },
     ];
   });
-  const cpuUsagePercentageMetrics = metrics.map((metric: Metric) => {
+  const cpuUsagePercentageMetrics = metrics?.dynamic.map((metric: DynamicMetric) => {
     return [
       {
         createdAt: metric.createdAt,
@@ -251,6 +286,7 @@ function Dashboard() {
   return (
     <>
       <CustomAppShell selected={1}>
+
         <div>
           <button onClick={fetchAllMetrics}>Export CSV</button>
           <Modal
@@ -265,9 +301,60 @@ function Dashboard() {
             </CSVLink>
           </Modal>
         </div>
+
+        <Title>Client: {metrics?.static.host_name}</Title>
+        <Group
+          style={{
+            position: "fixed",
+            right: 17,
+            top: 10,
+            zIndex: 20000,
+          }}
+        >
+          <Button color={!opened ? "blue" : "red"} onClick={!opened ? open : close}>
+            {opened ? "Close client list" : "Open clients list"}
+          </Button>
+        </Group>
+        <Drawer
+          size={rem(700)}
+          title={"Clients list"}
+          position="right"
+          opened={opened}
+          onClose={close}
+          scrollAreaComponent={ScrollArea.Autosize}
+        >
+          {groups.map((group: any) => {
+            return (
+              <List listStyleType="disc">
+                <List.Item>
+                  <Title>{group.name}</Title>
+                </List.Item>
+                <Flex direction={"column"} gap={7}>
+                  {group.clients.map((client: any) => {
+                    return (
+                      <List withPadding>
+                        <List.Item>
+                          <Button
+                            onClick={() => {
+                              console.log(client.clientID);
+                              setSelectedClientId(client.clientID);
+                            }}
+                          >
+                            {client.host_name}
+                          </Button>
+                        </List.Item>
+                      </List>
+                    );
+                  })}
+                </Flex>
+              </List>
+            );
+          })}
+        </Drawer>
+
         <StatsRing data={statsRingData} />
         <Title>Swap metrics</Title>
-        <SimpleGrid mt={20} mb={20} cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+        <SimpleGrid mt={20} mb={20} cols={maxCols} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
           <LineGraph
             title={"Gpu usage %"}
             metrics={gpuLoadMetrics}
@@ -300,15 +387,15 @@ function Dashboard() {
           />
         </SimpleGrid>
         <Title>Storage metrics</Title>
-        <SimpleGrid mt={20} mb={20} cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-          <LineGraph title={"Total bytes sent"} metrics={totalBytesSentMetrics} />
-          <LineGraph title={"Total bytes recieved"} metrics={totalBytesRecievedMetrics} />
-          <LineGraph title={"Total bytes read"} metrics={totalBytesReadMetrics} />
-          <LineGraph title={"Total bytes written"} metrics={totalBytesWrittenMetrics} />
-          <LineGraph title={"Storage usage"} metrics={partitionMetrics} />
+        <SimpleGrid mt={20} mb={20} cols={maxCols} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+          <LineGraph title={"Total bytes sent (GB)"} metrics={totalBytesSentMetrics} />
+          <LineGraph title={"Total bytes recieved (GB)"} metrics={totalBytesRecievedMetrics} />
+          <LineGraph title={"Total bytes read (GB)"} metrics={totalBytesReadMetrics} />
+          <LineGraph title={"Total bytes written (GB)"} metrics={totalBytesWrittenMetrics} />
+          <LineGraph title={"Storage usage (GB)"} metrics={partitionMetrics} />
         </SimpleGrid>
         <Title>Memory metrics</Title>
-        <SimpleGrid mt={20} mb={20} cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+        <SimpleGrid mt={20} mb={20} cols={maxCols} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
           <LineGraph title={"Total swap"} metrics={totalSwapMetrics} />
           <LineGraph title={"Used swap"} metrics={usedSwapMetrics} />
           <LineGraph title={"Free swap"} metrics={freeSwapMetrics} />
@@ -345,6 +432,10 @@ function Dashboard() {
               yMin: 80,
               yMax: 100,
             }}
+            topRightLabel={[
+              `Logical cores: ${metrics?.static.logical_cores}`,
+              `Physical cores: ${metrics?.static.physical_cores}`,
+            ]}
           />
         </SimpleGrid>
       </CustomAppShell>
@@ -356,7 +447,7 @@ interface StatsRingProps {
   data: {
     label: string;
     stats: string;
-    progress: number;
+    progress: number | undefined;
     color: string;
   }[];
 }
@@ -377,7 +468,7 @@ function StatsRing({ data }: StatsRingProps) {
             size={80}
             roundCaps
             thickness={8}
-            sections={[{ value: stat.progress, color: stat.color }]}
+            sections={[{ value: stat.progress || 0, color: stat.color }]}
           />
           <div>
             <Text color="dimmed" size="xs" transform="uppercase" weight={600}>

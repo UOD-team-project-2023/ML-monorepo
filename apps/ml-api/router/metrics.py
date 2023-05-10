@@ -1,13 +1,17 @@
-from fastapi import APIRouter, HTTPException, Response
+from typing import Optional
+from fastapi import APIRouter, HTTPException
 from db import prisma
-import csv
 
 router = APIRouter()
 
 
-@router.get("/metrics", tags=["metrics"])
-async def metrics(client_id: str, token: str):
+@router.get("/metrics", tags=["stats"])
+async def metrics(token: str, client_id: Optional[str] = None):
     user = await prisma.users.find_first(where={"token": token})
+
+    if not client_id:
+        client = await prisma.clients.find_first()
+        client_id = client.clientID
 
     if not user:
         raise HTTPException(
@@ -21,7 +25,7 @@ async def metrics(client_id: str, token: str):
     graph_plots = 50
     skip_records = max(0, total_count - graph_plots)
 
-    metrics = await prisma.dynamicmetric.find_many(
+    dynamic_metrics = await prisma.dynamicmetric.find_many(
         where={
             "clientID": client_id,
         },
@@ -31,6 +35,18 @@ async def metrics(client_id: str, token: str):
         skip=skip_records,
         take=graph_plots,
     )
+
+    static_metrics = await prisma.staticmetric.find_first(
+        order={
+            "createdAt": "desc",
+        }
+    )
+
+    metrics = {
+        "dynamic": dynamic_metrics,
+        "static": static_metrics,
+    }
+
     return metrics
 
 @router.get("/metrics/export", tags=["metrics"])

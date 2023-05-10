@@ -24,6 +24,7 @@ interface User {
   id: string;
   username: string;
   permission: string;
+  me: boolean;
 }
 
 function Accounts() {
@@ -208,6 +209,7 @@ function Accounts() {
           }}
         />
         <Button
+          mt={10}
           onClick={() => {
             if (!account) return;
             editAccount(account);
@@ -218,6 +220,7 @@ function Accounts() {
         </Button>
       </Modal>
       <Modal
+        title={"Create account"}
         opened={createAccountModalOpened}
         onClose={() => setCreateAccountModalOpened(!createAccountModalOpened)}
       >
@@ -243,7 +246,7 @@ function Accounts() {
           Create account
         </Button>
       </Modal>
-      <CustomAppShell selected={5}>
+      <CustomAppShell selected={4}>
         <Flex justify={"space-between"}>
           <Title>Accounts</Title>
           <Button onClick={() => setCreateAccountModalOpened(!createAccountModalOpened)}>
@@ -264,7 +267,14 @@ function Accounts() {
                 <td>
                   <Group>
                     <Avatar color={"blue"} radius="xl" />
-                    <Title size={20}>{account.username}</Title>
+                    <Flex direction={"column"}>
+                      <Title size={20}>{account.username}</Title>
+                      {account.me && (
+                        <Text color={theme.colors.dark[2]} size={13}>
+                          You
+                        </Text>
+                      )}
+                    </Flex>
                   </Group>
                 </td>
                 <td>

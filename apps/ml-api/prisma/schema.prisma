@@ -8,6 +8,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Group {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  client      Clients[]
+}
+
 model Clients {
   id            Int             @id @default(autoincrement())
   clientID      String          @unique
@@ -15,6 +22,8 @@ model Clients {
   updatedAt     DateTime        @updatedAt
   StaticMetric  StaticMetric[]
   DynamicMetric DynamicMetric[]
+  Group         Group?          @relation(fields: [groupId], references: [id])
+  groupId       Int?            @unique
 }
 
 model StaticMetric {
@@ -47,21 +56,21 @@ model DynamicMetric {
   total_cpu_usage      Float
   core_utilization     Json
   total_ram_usage      Float
-  available_ram        BigInt
-  used_ram             BigInt
   ram_percent          Float
-  total_swap           BigInt
+  swap_percent         Float
+  gpu_usage            Json
+  partitions           Json
+  dns                  Json
   free_swap            BigInt
   used_swap            BigInt
-  swap_percent         Float
+  used_ram             BigInt
   total_bytes_sent     BigInt
   total_bytes_received BigInt
   total_bytes_read     BigInt
   total_bytes_written  BigInt
-  gpu_usage            Json
-  partitions           Json
   adapter_information  Json
-  dns                  Json
+  available_ram        BigInt
+  total_swap           BigInt
 
   client Clients @relation(fields: [clientID], references: [clientID])
 }
