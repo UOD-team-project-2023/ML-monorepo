@@ -46,7 +46,7 @@ async def metrics(token: str, client_id: Optional[str] = None):
         "dynamic": dynamic_metrics,
         "static": static_metrics,
     }
-
+    
     return metrics
 
 @router.get("/metrics/export", tags=["metrics"])

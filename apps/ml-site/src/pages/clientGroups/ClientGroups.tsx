@@ -1,12 +1,23 @@
-import { Button, Modal, SimpleGrid, TextInput, Title, useMantineTheme } from "@mantine/core";
+import {
+  Button,
+  Flex,
+  Modal,
+  SimpleGrid,
+  TextInput,
+  Text,
+  Title,
+  useMantineTheme,
+} from "@mantine/core";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { Loading } from "../../components/loading/Loading";
+import { Trash } from "tabler-icons-react";
 
 function ClientGroups() {
   const [createGroupModalOpened, setCreateGroupModalOpened] = useState(false);
+  const [deleteGroupModalOpened, setDeleteGroupModalOpened] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [groupDescription, setGroupDescription] = useState("");
   const [refetchClients, setRefetchClients] = useState(false);
@@ -126,6 +137,37 @@ function ClientGroups() {
     setGroups(deepClone);
   };
 
+  const token = sessionStorage.getItem("token");
+
+  const handleGroupDelete = async (groupId: number) => {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/groups/delete?group_id=${groupId}&token=${token}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
+    }
+
+    notifications.show({
+      title: "Success!",
+      message: data.detail,
+      color: "green",
+    });
+
+    setRefetchGroups(true);
+  };
+
   return (
     <>
       <Modal
@@ -171,7 +213,14 @@ function ClientGroups() {
                         width: "100%",
                       }}
                     >
-                      {group.name}
+                      <Flex justify={"space-between"}>
+                        <Text>{group.name}</Text>
+                        <Trash
+                          cursor="pointer"
+                          color="red"
+                          onClick={() => handleGroupDelete(group.id)}
+                        />
+                      </Flex>
                       {group?.clients?.map((client: any, index: number) => (
                         <Draggable key={client.id} draggableId={client.id.toString()} index={index}>
                           {(provided) => (

@@ -1,9 +1,9 @@
-from http.client import HTTPException
 from typing import List, Optional
 from db import prisma
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from helpers.get_client_host_name import get_client_host_name
+from helpers.try_int import try_int
 
 router = APIRouter()
 
@@ -117,3 +117,24 @@ async def save_groups(group_save_payload: GroupSaveRequest):
                 })
 
     return {"detail": "Groups saved successfully"}
+
+
+@router.delete("/groups/delete", tags=["users"])
+async def users(group_id: str, token: str):
+    if not token:
+        raise HTTPException(
+            status_code=401, detail="You do not have permission to delete this group")
+    
+    user = await prisma.users.find_first(where={"token": token})
+
+    if not user or user.permission != "ADMIN":
+        raise HTTPException(status_code=401, detail="You do not have permission to delete this group")
+    
+    
+    group_id = try_int(group_id)
+    if not group_id:
+        raise HTTPException(status_code=400, detail="Invalid group ID")
+
+    await prisma.group.delete(where={"id": group_id})
+
+    return {"detail": "Successfully deleted user account"}
