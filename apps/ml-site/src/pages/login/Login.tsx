@@ -8,6 +8,7 @@ import {
   PasswordInput,
   TextInput,
   Flex,
+  Anchor,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { At, Lock } from "tabler-icons-react";
@@ -55,20 +56,23 @@ function Login() {
             onChange={(event) => setValue(event.currentTarget.value)}
           />
         </form>
-        <Button
-          component="a"
-          target="_self"
-          href="/dashboard"
-          ml={5}
-          mt={5}
-          style={{
-            backgroundColor: theme.colors.dark[6],
-            fontWeight: "normal",
-            color: theme.colors.indigo[5],
-          }}
-        >
-          Login
-        </Button>
+        <Flex direction={"column"}>
+          <Button
+            component="a"
+            target="_self"
+            href="/dashboard"
+            ml={5}
+            mt={5}
+            style={{
+              backgroundColor: theme.colors.dark[6],
+              fontWeight: "normal",
+              color: theme.colors.indigo[5],
+            }}
+          >
+            Login
+          </Button>
+          <Anchor href="/register">Or click here to create an account</Anchor>
+        </Flex>
       </Box>
     </Center>
   );

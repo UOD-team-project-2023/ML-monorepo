@@ -13,10 +13,12 @@ import {
   useMantineTheme,
   Flex,
   Image,
+  Anchor,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import monitorLizardLogo from "../../../public/monitor_lizard.png";
+import { useLocation } from "react-router-dom";
 
 function PasswordRequirement({ meets, label }: { meets: boolean; label: string }) {
   return (
@@ -85,6 +87,10 @@ async function handleFormSubmit(values: any) {
 }
 
 function Register() {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const error = queryParams.get("error");
+
   const [popoverOpened, setPopoverOpened] = useState(false);
   const [passvalue, setPassValue] = useState("");
 
@@ -115,6 +121,14 @@ function Register() {
 
   const strength = getStrength(passvalue);
   const color = strength === 100 ? "teal" : strength > 50 ? "yellow" : "red";
+
+  if (error === "unauthorized") {
+    notifications.show({
+      title: "Error",
+      message: "You are not authorized to view the dashboard, please login or create an account.",
+      color: "red",
+    });
+  }
 
   return (
     <Center maw={500} mx="auto" mt="15%">
@@ -165,18 +179,22 @@ function Register() {
               {checks}
             </Popover.Dropdown>
           </Popover>
-          <Button
-            type="submit"
-            ml={5}
-            mt={5}
-            style={{
-              backgroundColor: theme.colors.dark[6],
-              fontWeight: "normal",
-              color: theme.colors.indigo[5],
-            }}
-          >
-            Create Account!
-          </Button>
+          <Flex direction={"column"}>
+            <Button
+              type="submit"
+              ml={5}
+              mt={5}
+              fullWidth
+              style={{
+                backgroundColor: theme.colors.dark[6],
+                fontWeight: "normal",
+                color: theme.colors.indigo[5],
+              }}
+            >
+              Create Account!
+            </Button>
+            <Anchor href="/login">Or click here to login</Anchor>
+          </Flex>
         </form>
       </Box>
     </Center>
