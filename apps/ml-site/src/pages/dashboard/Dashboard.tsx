@@ -291,7 +291,7 @@ function Dashboard() {
     <>
       <CustomAppShell selected={1}>
         <div>
-          <button onClick={() => fetchAllMetrics()}>Export CSV</button>
+          <Button onClick={() => fetchAllMetrics()}>Export CSV</Button>
           <Modal
             opened={showModal}
             onClose={() => {
