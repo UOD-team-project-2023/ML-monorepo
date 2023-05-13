@@ -13,10 +13,12 @@ import {
 import { useEffect, useState } from "react";
 import { At, Lock } from "tabler-icons-react";
 import monitorLizardLogo from "../../../public/monitor_lizard.png";
+import { notifications } from "@mantine/notifications";
 
 function Login() {
-  const [value, setValue] = useState("");
-  const [status, setStatus] = useState();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
   const theme = useMantineTheme();
 
   useEffect(() => {
@@ -29,7 +31,26 @@ function Login() {
       }
     }
     fetchUsers();
-  });
+  }, []);
+
+  const handleUserLogin = async () => {
+    const apiURL = import.meta.env.VITE_API_URL;
+    const response = await fetch(`${apiURL}/user/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password,
+      }),
+    });
+    const data = await response.json();
+    if (response.status === 200) {
+      sessionStorage.setItem("token", data.token);
+      window.location.href = "/dashboard";
+    }
+  };
 
   return (
     <Center maw={500} mx="auto" mt="15%">
@@ -46,27 +67,27 @@ function Login() {
             style={{ padding: 5 }}
             placeholder="Username"
             icon={<At size={14} />}
-            onChange={(event) => setValue(event.currentTarget.value)}
+            onChange={(event) => setUsername(event.currentTarget.value)}
           />
           <PasswordInput
             withAsterisk={true}
             style={{ padding: 5 }}
             placeholder="Password"
             icon={<Lock size={14} />}
-            onChange={(event) => setValue(event.currentTarget.value)}
+            onChange={(event) => setPassword(event.currentTarget.value)}
           />
         </form>
         <Flex direction={"column"}>
           <Button
-            component="a"
-            target="_self"
-            href="/dashboard"
             ml={5}
             mt={5}
             style={{
               backgroundColor: theme.colors.dark[6],
               fontWeight: "normal",
               color: theme.colors.indigo[5],
+            }}
+            onClick={() => {
+              handleUserLogin();
             }}
           >
             Login

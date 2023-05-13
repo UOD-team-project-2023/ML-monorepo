@@ -146,3 +146,19 @@ async def users(request: Request, account: EditAccountData):
     })
 
     return {"detail": "Successfully edited user account"}
+
+
+class User(BaseModel):
+    username: str
+    password: str
+
+@router.post("/user/login", tags=["users"])
+async def users(user: User):
+    user = await prisma.users.find_first(where={"username": user.username, "password": user.password})
+    if not user:
+        raise HTTPException(
+            status_code=401, detail="Invalid Credentials")
+    
+    return {"detail": "Successfully edited user account", "token": user.token}
+
+
