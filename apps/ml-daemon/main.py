@@ -47,8 +47,8 @@ class Probe():
             target=self.run_schedule, args=())
         self.schedule_thread.start()
 
-        if check_desktop_enviroment():
-            self._setup_tray_icon()
+        #if check_desktop_enviroment():
+        #    self._setup_tray_icon()
 
     def _verify_log_file(self):
         # Check if the logs directory exists, if not, create it
@@ -168,6 +168,11 @@ class Probe():
 
     def run_schedule(self):
         self.logger.debug('Starting schedule thread.')
+
+        
+        self.send_static_data()
+        self.send_dynamic_data()
+
         schedule.every(self.dynamic_data_interval).seconds.do(
             self.send_dynamic_data)
         schedule.every(self.static_data_interval).seconds.do(
