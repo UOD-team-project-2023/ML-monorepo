@@ -11,8 +11,8 @@ else
 fi
 
 
-git pull
 source venv/bin/activate
 pip3 install -r requirements.txt
 prisma generate
+prisma db push
 python3 main.py
