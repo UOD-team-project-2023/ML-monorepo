@@ -49,7 +49,6 @@ interface LineGraphProps {
   maxY?: number;
   amberAnnotationOptions?: CustomAnnotationOptions;
   redAnnotationOptions?: CustomAnnotationOptions;
-  topRightLabel?: string[];
 }
 
 export function LineGraph({
@@ -60,7 +59,6 @@ export function LineGraph({
   maxY,
   amberAnnotationOptions,
   redAnnotationOptions,
-  topRightLabel,
 }: LineGraphProps) {
   const options: ChartOptions<"line"> = {
     responsive: true,

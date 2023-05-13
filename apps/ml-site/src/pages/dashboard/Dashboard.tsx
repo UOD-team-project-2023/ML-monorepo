@@ -437,10 +437,6 @@ function Dashboard() {
                   yMin: 80,
                   yMax: 100,
                 }}
-                topRightLabel={[
-                  `Logical cores: ${metrics?.static.logical_cores}`,
-                  `Physical cores: ${metrics?.static.physical_cores}`,
-                ]}
               />
             </SimpleGrid>
           </>
