@@ -156,7 +156,7 @@ export function LineGraph({
   );
 
   const labels = sortedMetrics?.map((metric: DynamicMetric[]) => {
-    if (!metric || !metric) {
+    if (!metric || metric.length === 0) {
       check = false;
       return check;
     }
