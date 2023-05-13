@@ -50,6 +50,13 @@ function Login() {
       sessionStorage.setItem("token", data.token);
       window.location.href = "/dashboard";
     }
+    if (response.status !== 200) {
+      notifications.show({
+        title: "Login failed",
+        message: data.detail,
+        color: "red",
+      });
+    }
   };
 
   return (
