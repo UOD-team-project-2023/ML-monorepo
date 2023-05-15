@@ -1,5 +1,6 @@
 # Define variables for the Python executable and download URL
-$downloadUrl = "http://192.168.60.114:8001/file/client.zip"
+$ipPort = "<IP>:<PORT>" # Replace with the IP and port of your Monitor Lizard instance
+$downloadUrl = "http://$ipPort/file/client.zip"
 $pythonDownloadURL = "https://www.python.org/ftp/python/3.10.0/python-3.10.0-amd64.exe"
 $pythonExe = "python.exe"
 $serviceName = "Monitor Lizard Probe"
@@ -12,7 +13,7 @@ $ErrorActionPreference = "Stop"
 # Define the task name, description, and command
 $taskName = "MonitorLizardUpdate"
 $taskDesc = "Update MonitorLizard every 24 hours at 3am"
-$taskCommand = "Start-Process powershell.exe -Verb RunAs -ArgumentList '-ExecutionPolicy Bypass -Command (Invoke-WebRequest -Uri ''http://192.168.60.114:8001/install.ps1'' -UseBasicParsing | Invoke-Expression)'"
+$taskCommand = "Start-Process powershell.exe -Verb RunAs -ArgumentList '-ExecutionPolicy Bypass -Command (Invoke-WebRequest -Uri ''http://$ipPort/install.ps1'' -UseBasicParsing | Invoke-Expression)'"
 
 # Check if Python is installed, and if not, download and install it
 if (-not (Test-Path $pythonExe)) {

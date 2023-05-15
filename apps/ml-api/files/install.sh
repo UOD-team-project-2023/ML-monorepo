@@ -1,14 +1,15 @@
 #!/bin/bash
 
 # Define variables
+IP_PORT="<IP>:<PORT>" # Replace with the IP and port of your Monitor Lizard instance
 SERVICE_NAME="mld"
-URL="http://192.168.60.114:8001/file/client.zip"
+URL="http://$IP_PORT/file/client.zip"
 INSTALL_DIR="/opt/MonitorLizardDaemon"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 SERVICE_USER="monitorlizarddaemon"
 SERVICE_GROUP="monitorlizarddaemon"
 CRON_SCHEDULE="0 3 * * *"
-CRON_COMMAND="curl -sSL \"http://192.168.60.114:8001/install.sh\" | sudo bash -"
+CRON_COMMAND="curl -sSL \"$IP_PORT/install.sh\" | sudo bash -"
 
 
 # Check if Python is installed, and if not, download and install it
