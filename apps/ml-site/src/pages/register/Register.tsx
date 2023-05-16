@@ -91,12 +91,12 @@ function Register() {
   const queryParams = new URLSearchParams(location.search);
   const error = queryParams.get("error");
 
+  const [authErrorDisplayed, setAuthErrorDisplayed] = useState(false);
   const [popoverOpened, setPopoverOpened] = useState(false);
   const [passvalue, setPassValue] = useState("");
 
   const theme = useMantineTheme();
   
-  let authErrorDisplayed: boolean = false;
 
   const checks = requirements.map((requirement, index) => (
     <PasswordRequirement
@@ -130,7 +130,7 @@ function Register() {
       message: "You are not authorized to view the dashboard, please login or create an account.",
       color: "red",
     });
-    authErrorDisplayed = true;
+    setAuthErrorDisplayed(true);
   }
 
   return (
