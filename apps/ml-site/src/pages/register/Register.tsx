@@ -125,12 +125,14 @@ function Register() {
   const color = strength === 100 ? "teal" : strength > 50 ? "yellow" : "red";
 
   if (error === "unauthorized" && !authErrorDisplayed) {
-    notifications.show({
-      title: "Error",
-      message: "You are not authorized to view the dashboard, please login or create an account.",
-      color: "red",
-    });
-    setAuthErrorDisplayed(true);
+    setTimeout(() => {
+      notifications.show({
+        title: "Error",
+        message: "You are not authorized to view the dashboard, please login or create an account.",
+        color: "red",
+      });
+      setAuthErrorDisplayed(true);
+    }, 0);
   }
 
   return (
