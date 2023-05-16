@@ -71,6 +71,8 @@ function Dashboard() {
       if (response.status !== 200) return (window.location.href = "/register?error=unauthorized");
 
       const data = await response.json();
+
+      setSelectedClientId(data.static.clientID);
       setMetrics(data);
       setNewestMetric(data.dynamic[data.dynamic.length - 1]);
     }
@@ -278,16 +280,12 @@ function Dashboard() {
 
   async function fetchAllMetrics() {
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/metrics/export?client_id=${
-        import.meta.env.VITE_CLIENT_ID
-      }&token=${token}`
+      `${import.meta.env.VITE_API_URL}/metrics/export?client_id=${selectedClientId}&token=${token}`
     );
     const data = await response.json();
     setShowModal(!showModal);
     setAllMetrics(data);
   }
-
-  console.log(metrics?.static.clientID);
 
   return (
     <>
