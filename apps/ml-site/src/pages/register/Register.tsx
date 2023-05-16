@@ -95,6 +95,8 @@ function Register() {
   const [passvalue, setPassValue] = useState("");
 
   const theme = useMantineTheme();
+  
+  let authErrorDisplayed: boolean = false;
 
   const checks = requirements.map((requirement, index) => (
     <PasswordRequirement
@@ -122,12 +124,13 @@ function Register() {
   const strength = getStrength(passvalue);
   const color = strength === 100 ? "teal" : strength > 50 ? "yellow" : "red";
 
-  if (error === "unauthorized") {
+  if (error === "unauthorized" && !authErrorDisplayed) {
     notifications.show({
       title: "Error",
       message: "You are not authorized to view the dashboard, please login or create an account.",
       color: "red",
     });
+    authErrorDisplayed = true;
   }
 
   return (
