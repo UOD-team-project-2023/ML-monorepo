@@ -287,6 +287,8 @@ function Dashboard() {
     setAllMetrics(data);
   }
 
+  console.log(metrics?.static.clientID);
+
   return (
     <>
       <CustomAppShell selected={1}>

@@ -36,7 +36,10 @@ async def metrics(token: str, client_id: Optional[str] = None):
         take=graph_plots,
     )
 
-    static_metrics = await prisma.staticmetric.find_first(
+    static_metric = await prisma.staticmetric.find_first(
+        where={
+            "clientID": client_id,
+        },
         order={
             "createdAt": "desc",
         }
@@ -44,9 +47,9 @@ async def metrics(token: str, client_id: Optional[str] = None):
 
     metrics = {
         "dynamic": dynamic_metrics,
-        "static": static_metrics,
+        "static": static_metric,
     }
-    
+        
     return metrics
 
 @router.get("/metrics/export", tags=["metrics"])
