@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, Check, Lock, User } from "tabler-icons-react";
 import {
   Title,
@@ -91,12 +91,10 @@ function Register() {
   const queryParams = new URLSearchParams(location.search);
   const error = queryParams.get("error");
 
-  const [authErrorDisplayed, setAuthErrorDisplayed] = useState(false);
   const [popoverOpened, setPopoverOpened] = useState(false);
   const [passvalue, setPassValue] = useState("");
 
   const theme = useMantineTheme();
-  
 
   const checks = requirements.map((requirement, index) => (
     <PasswordRequirement
@@ -124,16 +122,15 @@ function Register() {
   const strength = getStrength(passvalue);
   const color = strength === 100 ? "teal" : strength > 50 ? "yellow" : "red";
 
-  if (error === "unauthorized" && !authErrorDisplayed) {
-    setTimeout(() => {
+  useEffect(() => {
+    if (error === "unauthorized") {
       notifications.show({
         title: "Error",
         message: "You are not authorized to view the dashboard, please login or create an account.",
         color: "red",
       });
-      setAuthErrorDisplayed(true);
-    }, 0);
-  }
+    }
+  }, [error]);
 
   return (
     <Center maw={500} mx="auto" mt="15%">
