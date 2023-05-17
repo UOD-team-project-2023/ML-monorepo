@@ -2,25 +2,11 @@ import uuid
 
 from helpers.try_int import try_int
 from fastapi import APIRouter, HTTPException, Request
-from typing import Annotated
 from db import prisma
 from pydantic import BaseModel
 from helpers.password import has_numbers, has_lowercase, has_uppercase, has_specialchar
 
 router = APIRouter()
-
-
-@router.get("/get_all_users", tags=["users"])
-async def user_list():
-    users = await prisma.users.find_many()
-    return users
-
-
-@router.get("/user/{user_id}", tags=["users"])
-async def user_list(user_id: int):
-    user = await prisma.users.find_first(where={"id": user_id})
-    return user
-
 
 class CreateUserData(BaseModel):
     username: str
@@ -87,7 +73,16 @@ async def user_profile(token: str):
 
 @router.get("/users", tags=["users"])
 async def users(token: str):
-    # TODO: check if token is for admin acc
+    action_author = await prisma.users.find_first(where={"token": token})
+
+    if not action_author:
+        raise HTTPException(
+            status_code=400, detail="You can't delete your own account")
+    
+    if action_author.permission != "ADMIN":
+        raise HTTPException(
+            status_code=401, detail="You do not have permission to access users")
+    
     users = await prisma.users.find_many()
     if not users:
         raise HTTPException(status_code=400, detail="No User found")
@@ -115,6 +110,10 @@ async def users(account_id: str, token: str):
     if action_author.id == account_id:
         raise HTTPException(
             status_code=400, detail="You can't delete your own account")
+    
+    if action_author.permission != "ADMIN":
+        raise HTTPException(
+            status_code=401, detail="You do not have permission to delete other peoples accounts")
 
     await prisma.users.delete(where={"id": account_id})
 
@@ -129,7 +128,6 @@ class EditAccountData(BaseModel):
 
 @router.put("/edit_account", tags=["users"])
 async def users(request: Request, account: EditAccountData):
-    # TODO: check auth
     token = request.headers.get("authorization")
     action_author = await prisma.users.find_first(where={"token": token})
     if not action_author:
@@ -138,7 +136,7 @@ async def users(request: Request, account: EditAccountData):
 
     if action_author.permission != "ADMIN":
         raise HTTPException(
-            status_code=401, detail="You do not have permission to edit other peoples accounts")
+            status_code=401, detail="You do not have permission to edit roles")
 
     await prisma.users.update(where={"id": account.account_id}, data={
         "username": account.username,

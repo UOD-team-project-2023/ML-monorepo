@@ -1,6 +1,6 @@
 import { Group, Navbar, Flex, Code, Title, Image } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { AlertCircle, Dashboard, Icon, Man, Users } from "tabler-icons-react";
+import { Dashboard, Icon, Man, Users } from "tabler-icons-react";
 import { UserProfileButton } from "../profile/UserProfileButton";
 import { useStyles } from "./dashboardNavbar.styles";
 import monitorLizardLogo from "../../../public/monitor_lizard.png";
@@ -10,14 +10,15 @@ export interface NavBarLinks {
   link: string;
   label: string;
   icon: Icon | null;
+  adminOnly?: boolean;
 }
 
 const data: NavBarLinks[] = [
   { link: "", label: "Public", icon: null },
   { link: "/dashboard", label: "Dashboard", icon: Dashboard },
-  { link: "", label: "Admin", icon: null },
-  { link: "/groups", label: "Client groups", icon: Man },
-  { link: "/accounts", label: "Accounts", icon: Users },
+  { link: "", label: "Admin", icon: null, adminOnly: true },
+  { link: "/groups", label: "Client groups", icon: Man, adminOnly: true },
+  { link: "/accounts", label: "Accounts", icon: Users, adminOnly: true },
 ];
 
 interface Props {
@@ -54,18 +55,22 @@ export function DashboardNavbar({ opened, selected }: Props) {
   const links = data.map((item, index) => {
     return (
       <>
-        {item.link && item.icon ? (
-          <a
-            className={cx(classes.link, { [classes.linkActive]: index === active })}
-            href={item.link}
-            key={item.label}
-            onClick={() => setActive(index)}
-          >
-            <item.icon color={"white"} />
-            <span>{item.label}</span>
-          </a>
-        ) : (
-          <Title size={20}>{item.label}</Title>
+        {item.adminOnly && user.permission !== "ADMIN" ? null : (
+          <>
+            {item.link && item.icon ? (
+              <a
+                className={cx(classes.link, { [classes.linkActive]: index === active })}
+                href={item.link}
+                key={item.label}
+                onClick={() => setActive(index)}
+              >
+                <item.icon color={"white"} />
+                <span>{item.label}</span>
+              </a>
+            ) : (
+              <Title size={20}>{item.label}</Title>
+            )}
+          </>
         )}
       </>
     );

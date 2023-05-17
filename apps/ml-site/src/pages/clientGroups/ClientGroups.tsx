@@ -62,6 +62,7 @@ function ClientGroups() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token || "",
       },
       body: JSON.stringify({
         group_name: groupName,
@@ -97,6 +98,7 @@ function ClientGroups() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token || "",
       },
       body: JSON.stringify({
         groups: deepClone,

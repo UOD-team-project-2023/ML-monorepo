@@ -91,11 +91,7 @@ class Probe():
         self.tray.run()
 
     def after_click(self, icon, query):
-        if str(query) == "opt1":
-            print("opt1 clicked")
-        elif str(query) == "opt2":
-            print("opt2 clicked")
-        elif str(query) == "Update Now":
+        if str(query) == "Update Now":
             self.logger.debug('TRAY ICON: Update now clicked.')
             self.send_static_data()
             self.send_dynamic_data()

@@ -77,7 +77,6 @@ async function handleFormSubmit(values: any) {
     });
     window.location.href = "/dashboard";
   } else {
-    console.log(data);
     notifications.show({
       title: "Error",
       message: data.detail,

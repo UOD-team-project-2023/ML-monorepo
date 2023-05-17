@@ -1,6 +1,6 @@
 from typing import List, Optional
 from db import prisma
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from helpers.get_client_host_name import get_client_host_name
 from helpers.try_int import try_int
@@ -14,8 +14,18 @@ class GroupCreateRequest(BaseModel):
 
 
 @router.post("/groups/create", tags=["groups"])
-async def create_group(request: GroupCreateRequest):
-    group = await prisma.group.find_first(where={"name": request.group_name})
+async def create_group(request: Request, group_create_payload: GroupCreateRequest):
+    token = request.headers.get("Authorization")
+    if not token:
+        raise HTTPException(
+            status_code=401, detail="You do not have permission to create groups")
+    
+    user = await prisma.users.find_first(where={"token": token})
+    if not user or user.permission != "ADMIN":
+        raise HTTPException(
+            status_code=401, detail="You do not have permission to create groups")
+    
+    group = await prisma.group.find_first(where={"name": group_create_payload.group_name})
 
     if group:
         raise HTTPException(
@@ -23,8 +33,8 @@ async def create_group(request: GroupCreateRequest):
 
     await prisma.group.create(
         data={
-            "name": request.group_name,
-            "description": request.group_description
+            "name": group_create_payload.group_name,
+            "description": group_create_payload.group_description
         }
     )
 
@@ -103,7 +113,18 @@ class GroupSaveRequest(BaseModel):
 
 
 @router.post("/groups/save", tags=["groups"])
-async def save_groups(group_save_payload: GroupSaveRequest):
+async def save_groups(request: Request, group_save_payload: GroupSaveRequest):
+    token = request.headers.get("Authorization")
+    
+    if not token:
+        raise HTTPException(
+            status_code=401, detail="You do not have permission to save groups")
+    
+    user = await prisma.users.find_first(where={"token": token})
+    if not user or user.permission != "ADMIN":
+        raise HTTPException(
+            status_code=401, detail="You do not have permission to save groups")
+    
     for group in group_save_payload.groups:
         for client in group.clients:
             if group.id == 0:
@@ -130,11 +151,10 @@ async def users(group_id: str, token: str):
     if not user or user.permission != "ADMIN":
         raise HTTPException(status_code=401, detail="You do not have permission to delete this group")
     
-    
     group_id = try_int(group_id)
     if not group_id:
         raise HTTPException(status_code=400, detail="Invalid group ID")
 
     await prisma.group.delete(where={"id": group_id})
 
-    return {"detail": "Successfully deleted user account"}
+    return {"detail": "Successfully deleted group"}

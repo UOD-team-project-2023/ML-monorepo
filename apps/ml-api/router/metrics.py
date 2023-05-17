@@ -86,7 +86,6 @@ async def metrics(client_id: str, token: str):
     export_rows.append(','.join(export_data))  # Add the header row
 
     for x in dynamic_metrics: 
-        
         core_utilization = ' | '.join(str(core).replace("'", "").replace(",", "").replace("{", "").replace("}", "") for core in x.core_utilization)
         partitions = ' | '.join(str(partition).replace("'", "").replace(",", "").replace("{", "").replace("}", "") for partition in x.partitions)
         adapters = ' | '.join(str(adapter).replace("'", "").replace(",", "").replace("{", "").replace("}", "") for adapter in x.adapter_information)

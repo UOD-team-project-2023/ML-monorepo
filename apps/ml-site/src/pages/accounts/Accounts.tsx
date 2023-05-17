@@ -228,6 +228,7 @@ function Accounts() {
         <TextInput label={"Password"} onChange={(element) => setPassword(element.target.value)} />
         <Select
           label={"Role"}
+          withinPortal
           data={[
             {
               label: "Admin",
