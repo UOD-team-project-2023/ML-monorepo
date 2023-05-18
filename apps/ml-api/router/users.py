@@ -133,6 +133,10 @@ async def users(request: Request, account: EditAccountData):
     if not action_author:
         raise HTTPException(
             status_code=401, detail="You do not have permission to edit other peoples accounts")
+        
+    if action_author == account.account_id:
+        raise HTTPException(
+            status_code=400, detail="You can't edit your own account")
 
     if action_author.permission != "ADMIN":
         raise HTTPException(
