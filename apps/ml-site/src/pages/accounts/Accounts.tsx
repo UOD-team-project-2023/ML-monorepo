@@ -284,21 +284,48 @@ function Accounts() {
                   </Badge>
                 </td>
                 <td>
-                  <Flex align={"center"} gap={5}>
-                    <Pencil
-                      onClick={() => {
-                        setAccount(account);
-                        setOpenEditAccountModal(!openEditAccountModal);
-                      }}
-                      cursor={"pointer"}
-                      color={theme.colors.blue[6]}
-                    />
-                    <Trash
-                      onClick={() => openDeleteAccountModal(account)}
-                      cursor={"pointer"}
-                      color="red"
-                    />
-                  </Flex>
+                  {account.me ? (
+                    <Flex align={"center"} gap={5}>
+                      <Pencil
+                        onClick={() => {
+                          notifications.show({
+                            title: "Error",
+                            message: "You cannot edit your own account",
+                            color: "red",
+                          });
+                        }}
+                        color={theme.colors.gray[7]}
+                        cursor={"pointer"}
+                      />
+                      <Trash
+                        onClick={() => {
+                          notifications.show({
+                            title: "Error",
+                            message: "You cannot edit your own account",
+                            color: "red",
+                          });
+                        }}
+                        color={theme.colors.gray[7]}
+                        cursor={"pointer"}
+                      />
+                    </Flex>
+                  ) : (
+                    <Flex align={"center"} gap={5}>
+                      <Pencil
+                        onClick={() => {
+                          setAccount(account);
+                          setOpenEditAccountModal(!openEditAccountModal);
+                        }}
+                        cursor={"pointer"}
+                        color={theme.colors.blue[6]}
+                      />
+                      <Trash
+                        onClick={() => openDeleteAccountModal(account)}
+                        cursor={"pointer"}
+                        color="red"
+                      />
+                    </Flex>
+                  )}
                 </td>
               </tr>
             ))}
