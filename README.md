@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="ML Wallpaper.png" alt="Monitor Lizard Wallpaper" />
+</p>
+
 # Introduction
 Monitor Lizard is a server monitoring software that is comprised of three components: a Windows or Linux daemon running on the client, an API and database backend, and a web frontend to visualize the data. Monitor Lizard was created as part of a group project.
 
