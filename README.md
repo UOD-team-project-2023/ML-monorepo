@@ -5,27 +5,13 @@ More information can be found in the `Docs` folder and demonstrations can be fou
 
 # Demo Videos
 
-If your Markdown viewer supports embedded video, you can play them inline below.
+[API Install](https://raw.githubusercontent.com/UOD-team-project-2023/ML-monorepo/refs/heads/main/Videos/1-API.MP4)
 
-## API Install
-<video src="Videos/1-API.MP4" controls width="800"></video>
+[Site Install](https://raw.githubusercontent.com/UOD-team-project-2023/ML-monorepo/refs/heads/main/Videos/2-SITE.MP4)
 
-[Open API Install](Videos/1-API.MP4)
+[Daemon Install](https://raw.githubusercontent.com/UOD-team-project-2023/ML-monorepo/refs/heads/main/Videos/3-DAEMON.MP4)
 
-## Site Install
-<video src="Videos/2-SITE.MP4" controls width="800"></video>
-
-[Open Site Install](Videos/2-SITE.MP4)
-
-## Daemon Install
-<video src="Videos/3-DAEMON.MP4" controls width="800"></video>
-
-[Open Daemon Install](Videos/3-DAEMON.MP4)
-
-## Project Demo
-<video src="Videos/DEMO.MP4" controls width="800"></video>
-
-[Open Project Demo](Videos/DEMO.MP4)
+[Front End Demo](https://raw.githubusercontent.com/UOD-team-project-2023/ML-monorepo/refs/heads/main/Videos/DEMO.MP4)
 
 # Documentation
 
