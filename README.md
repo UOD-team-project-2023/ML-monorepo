@@ -3,8 +3,12 @@
 </p>
 
 # Introduction
-Monitor Lizard is a server monitoring software that is comprised of three components: a Windows or Linux daemon running on the client, an API and database backend, and a web frontend to visualize the data. Monitor Lizard was created as part of a group project.
-
+Monitor Lizard is a server monitoring software that is comprised of three components: a Windows or Linux daemon running on the client, an API and database backend, and a web frontend to visualize the data. Monitor Lizard was created as part of a group project undertaken by;
+- Peter Bedford - Developer
+- Logan Cross - Developer
+- Alfred Freeman - Developer
+- Elizabeth Spokes - Project Manager, Artist and Designer
+  
 More information can be found in the `Docs` folder and demonstrations can be found in the `Videos` folder.
 
 # Demo Videos
