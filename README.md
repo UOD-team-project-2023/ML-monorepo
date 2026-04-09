@@ -10,16 +10,16 @@ More information can be found in the `Docs` folder and demonstrations can be fou
 # Demo Videos
 
 ## Installing the API
-[![API Install](Videos/API-thumb.png)](https://raw.githubusercontent.com/UOD-team-project-2023/ML-monorepo/refs/heads/main/Videos/1-API.MP4)
+[![API Install](Videos/API-thumb.png)](https://youtu.be/jmRkWYstaMw)
 
 ## Installing the Front End
-[![Site Install](Videos/site-thumb.png)](https://raw.githubusercontent.com/UOD-team-project-2023/ML-monorepo/refs/heads/main/Videos/2-SITE.MP4)
+[![Site Install](Videos/site-thumb.png)](https://youtu.be/0LRqS8raUQQ)
 
 ## Installing Client Daemons
-[![Daemon Install](Videos/daemon-thumb.png)](https://raw.githubusercontent.com/UOD-team-project-2023/ML-monorepo/refs/heads/main/Videos/3-DAEMON.MP4)
+[![Daemon Install](Videos/daemon-thumb.png)](https://youtu.be/KT2hTS7PDYY)
 
 ## Product Demo
-[![Product Demo](Videos/demo-thumb.png)](https://raw.githubusercontent.com/UOD-team-project-2023/ML-monorepo/refs/heads/main/Videos/DEMO.MP4)
+[![Product Demo](Videos/demo-thumb.png)](https://youtu.be/3Hi6yvXyGRY)
 
 # Documentation
 
